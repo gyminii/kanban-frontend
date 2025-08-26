@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { ChevronsUpDown, Plus } from "lucide-react";
-import { BoardSwitcher } from "./board-switcher";
 
 import {
 	DropdownMenu,

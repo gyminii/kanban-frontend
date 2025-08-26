@@ -36,9 +36,7 @@ export async function updateSession(request: NextRequest) {
 	// IMPORTANT: Don't remove getClaims()
 	const { data } = await supabase.auth.getClaims();
 	const user = !!data?.claims;
-	const { pathname, search } = request.nextUrl;
-	const isProtected =
-		pathname.startsWith("/app") || pathname.startsWith("/private");
+	const { pathname } = request.nextUrl;
 	// Buggy bit with redirection
 	// if (
 	// 	!user &&
@@ -50,11 +48,10 @@ export async function updateSession(request: NextRequest) {
 	// 	url.pathname = "/login";
 	// 	return NextResponse.redirect(url);
 	// }
-
-	if (!user && isProtected) {
+	console.log("Is User authenticated?: ", user);
+	if (!user && pathname === "/") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/login";
-		url.searchParams.set("redirect", pathname + (search || ""));
 		return NextResponse.redirect(url);
 	}
 

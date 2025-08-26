@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getClient } from "@/utils/apollo/server";
 import { BOARD_QUERY } from "@/graphql/board";
 import BoardView from "@/components/kanban/board-view";
+import type { BoardT } from "@/components/kanban/types";
 
 export default async function BoardPage({
 	params,
@@ -17,7 +18,7 @@ export default async function BoardPage({
 	if (!user) redirect("/login");
 
 	const client = getClient();
-	const { data } = await client.query<{ board: any }>({
+	const { data } = await client.query<{ board: BoardT }>({
 		query: BOARD_QUERY,
 		variables: { boardId: id },
 		fetchPolicy: "no-cache",

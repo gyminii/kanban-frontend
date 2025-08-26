@@ -13,8 +13,8 @@ export type CardT = {
 
 export type ColumnT = {
 	id: string;
-	title: string;
 	boardId: string;
+	title: string;
 	order: number;
 	cards: CardT[];
 };

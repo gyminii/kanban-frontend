@@ -13,7 +13,11 @@ export default function KanbanCanvas({
 	onDragEnd: (result: DropResult) => void;
 	onAddCard: (columnId: string) => void;
 }) {
-	const cols = (columns ?? []).slice().sort((a, b) => a.order - b.order);
+	// 1) default to []  2) drop falsy  3) drop items lacking an id  4) keep a stable order
+	const cols: ColumnT[] = (columns ?? [])
+		.filter((c): c is ColumnT => !!c && typeof c.id === "string")
+		.slice()
+		.sort((a, b) => a.order - b.order);
 
 	return (
 		<DragDropContext onDragEnd={onDragEnd}>

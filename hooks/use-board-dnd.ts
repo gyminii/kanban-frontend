@@ -3,11 +3,9 @@
 import * as React from "react";
 import type { DropResult } from "@hello-pangea/dnd";
 import { useApolloClient } from "@apollo/client/react";
-
 import { BOARD_QUERY } from "@/graphql/board";
 import { MOVE_COLUMN } from "@/graphql/column";
 import { MOVE_CARD } from "@/graphql/card";
-
 import type { BoardT, ColumnT, CardT } from "@/components/kanban/types";
 
 export function useBoardDnd(
@@ -21,11 +19,11 @@ export function useBoardDnd(
 		boardRef.current = board;
 	}, [board]);
 
-	const writeBoardCache = (next: BoardT) => {
-		client.writeQuery({
+	const refetchBoard = async (id: string) => {
+		await client.query({
 			query: BOARD_QUERY,
-			variables: { boardId: next.id },
-			data: { board: next },
+			variables: { boardId: id },
+			fetchPolicy: "no-cache",
 		});
 	};
 
@@ -39,16 +37,11 @@ export function useBoardDnd(
 		// Columns
 		if (type === "COLUMN") {
 			const cols = [...current.columns].sort((a, b) => a.order - b.order);
-			if (source.index < 0 || source.index >= cols.length) return;
-
 			const [moved] = cols.splice(source.index, 1);
 			cols.splice(destination.index, 0, moved);
 
 			const reindexed: ColumnT[] = cols.map((c, i) => ({ ...c, order: i }));
-			const next: BoardT = { ...current, columns: reindexed };
-
-			setBoard(next);
-			writeBoardCache(next);
+			setBoard({ ...current, columns: reindexed });
 
 			try {
 				await client.mutate({
@@ -58,20 +51,15 @@ export function useBoardDnd(
 						moveColumn: {
 							__typename: "Column",
 							id: moved.id,
+							boardId: current.id,
 							title: moved.title,
 							order: destination.index,
-							// include if your Column fragment reads these
-							boardId: next.id,
-							cards: moved.cards,
+							cards: moved.cards ?? [],
 						} satisfies ColumnT & { __typename: "Column" },
 					},
 				});
 			} catch {
-				await client.query({
-					query: BOARD_QUERY,
-					variables: { boardId: current.id },
-					fetchPolicy: "no-cache",
-				});
+				await refetchBoard(current.id);
 			}
 			return;
 		}
@@ -103,18 +91,11 @@ export function useBoardDnd(
 			const normalized: ColumnT[] = nextCols.map((c) => ({
 				...c,
 				cards: c.cards.map(
-					(x, i): CardT => ({
-						...x,
-						order: i,
-						columnId: c.id,
-					})
+					(x, i): CardT => ({ ...x, order: i, columnId: c.id })
 				),
 			}));
 
-			const next: BoardT = { ...current, columns: normalized };
-
-			setBoard(next);
-			writeBoardCache(next);
+			setBoard({ ...current, columns: normalized });
 
 			try {
 				await client.mutate({
@@ -137,11 +118,7 @@ export function useBoardDnd(
 					},
 				});
 			} catch {
-				await client.query({
-					query: BOARD_QUERY,
-					variables: { boardId: current.id },
-					fetchPolicy: "no-cache",
-				});
+				await refetchBoard(current.id);
 			}
 		}
 	};

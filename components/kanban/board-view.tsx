@@ -1,21 +1,22 @@
 "use client";
 
-import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { useApolloClient } from "@apollo/client/react";
-import { BOARD_QUERY } from "@/graphql/board";
-import { ADD_COLUMN } from "@/graphql/column";
-import { ADD_CARD } from "@/graphql/card";
 import KanbanCanvas from "@/components/kanban/canvas";
+import type { BoardT, CardT, ColumnT } from "@/components/kanban/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ADD_CARD } from "@/graphql/card";
+import { ADD_COLUMN } from "@/graphql/column";
 import { useBoardDnd } from "@/hooks/use-board-dnd";
-import type { BoardT, ColumnT, CardT } from "@/components/kanban/types";
+import { formatDate } from "@/utils/format-date";
+import { useApolloClient } from "@apollo/client/react";
+import * as React from "react";
 
 function MetaBadge({ label, value }: { label: string; value: string }) {
 	return (
-		<span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs border-indigo-200 text-indigo-700 dark:text-indigo-300 dark:border-indigo-900">
+		<Badge variant="outline" className="gap-1">
 			<span className="opacity-70">{label}:</span>
 			<span className="font-medium">{value}</span>
-		</span>
+		</Badge>
 	);
 }
 
@@ -41,14 +42,12 @@ export default function BoardView({ initialBoard }: { initialBoard: BoardT }) {
 		const newCol = data?.addColumn;
 		if (!newCol) return;
 
-		const cols = [...board.columns, newCol].map((c, i) => ({ ...c, order: i }));
-		const next = { ...board, columns: cols };
-		setBoard(next);
-		client.writeQuery({
-			query: BOARD_QUERY,
-			variables: { boardId: board.id },
-			data: { board: next },
-		});
+		const withBoardId = { ...newCol, boardId: newCol.boardId ?? board.id };
+		const cols = [...board.columns, withBoardId].map((c, i) => ({
+			...c,
+			order: i,
+		}));
+		setBoard({ ...board, columns: cols });
 	}
 
 	async function onAddCard(columnId: string) {
@@ -63,19 +62,12 @@ export default function BoardView({ initialBoard }: { initialBoard: BoardT }) {
 		const newCard = data?.addCard;
 		if (!newCard) return;
 
-		setBoard((prev) => {
-			const cols = prev.columns.map((c) => {
-				if (c.id !== columnId) return c;
-				return { ...c, cards: [...c.cards, { ...newCard }] };
-			});
-			const next = { ...prev, columns: cols };
-			client.writeQuery({
-				query: BOARD_QUERY,
-				variables: { boardId: prev.id },
-				data: { board: next },
-			});
-			return next;
-		});
+		setBoard((prev) => ({
+			...prev,
+			columns: prev.columns.map((c) =>
+				c.id === columnId ? { ...c, cards: [...c.cards, newCard] } : c
+			),
+		}));
 	}
 
 	return (
@@ -90,23 +82,17 @@ export default function BoardView({ initialBoard }: { initialBoard: BoardT }) {
 						<MetaBadge label="Members" value={String(board.members.length)} />
 						<MetaBadge label="Columns" value={String(board.columns.length)} />
 						<MetaBadge label="Cards" value={String(totalCards)} />
-						<MetaBadge
-							label="Updated"
-							value={new Date(board.updatedAt).toLocaleDateString()}
-						/>
+						<MetaBadge label="Updated" value={formatDate(board.updatedAt)} />
 					</div>
 				</div>
-				<Button
-					onClick={onAddColumn}
-					className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700 text-white"
-				>
+				<Button onClick={onAddColumn} className="self-start sm:self-auto">
 					New Column
 				</Button>
 			</div>
 
 			<div className="flex-1 min-h-0">
 				<KanbanCanvas
-					columns={board.columns}
+					columns={board.columns ?? []}
 					onDragEnd={onDragEnd}
 					onAddCard={onAddCard}
 				/>

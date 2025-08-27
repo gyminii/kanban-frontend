@@ -17,10 +17,8 @@ export default async function Page() {
 		variables: { userId: user.id }, // <-- camelCase
 		fetchPolicy: "no-cache",
 	});
-
 	if (!data?.boards || data.boards.length === 0) {
 		redirect("/create-project");
 	}
-	console.log(user);
-	return <div className="bg-indigo-400">yoo</div>;
+	return redirect("/dashboard");
 }

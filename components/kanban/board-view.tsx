@@ -10,6 +10,7 @@ import { useBoardDnd } from "@/hooks/use-board-dnd";
 import { formatDate } from "@/utils/format-date";
 import { useApolloClient } from "@apollo/client/react";
 import * as React from "react";
+import { NewColumnButton } from "../new-column-button";
 
 function MetaBadge({ label, value }: { label: string; value: string }) {
 	return (
@@ -49,7 +50,6 @@ export default function BoardView({ initialBoard }: { initialBoard: BoardT }) {
 		}));
 		setBoard({ ...board, columns: cols });
 	}
-
 	async function onAddCard(columnId: string) {
 		const title = (window.prompt("Task title") ?? "").trim();
 		if (!title) return;
@@ -85,9 +85,7 @@ export default function BoardView({ initialBoard }: { initialBoard: BoardT }) {
 						<MetaBadge label="Updated" value={formatDate(board.updatedAt)} />
 					</div>
 				</div>
-				<Button onClick={onAddColumn} className="self-start sm:self-auto">
-					New Column
-				</Button>
+				<NewColumnButton boardId={board.id} />
 			</div>
 
 			<div className="flex-1 min-h-0">

@@ -1,3 +1,5 @@
+export type ISODate = string;
+
 export type CardT = {
 	id: string;
 	columnId: string;
@@ -16,6 +18,12 @@ export type ColumnT = {
 	boardId: string;
 	title: string;
 	order: number;
+	description?: string | null;
+	startDate?: ISODate | null;
+	endDate?: ISODate | null;
+	status?: string | null;
+	createdAt: ISODate;
+	updatedAt: ISODate;
 	cards: CardT[];
 };
 
@@ -26,5 +34,12 @@ export type BoardT = {
 	members: string[];
 	createdAt: string;
 	updatedAt: string;
+
+	description?: string | null;
+	color?: string | null;
+	isFavorite?: boolean;
+	isArchived?: boolean;
+	tags?: string[];
+
 	columns: ColumnT[];
 };

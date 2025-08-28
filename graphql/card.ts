@@ -8,10 +8,10 @@ export const CARD_FIELDS = gql`
 		description
 		order
 		assignedTo
-		createdAt
-		updatedAt
 		dueDate
 		completed
+		createdAt
+		updatedAt
 	}
 `;
 

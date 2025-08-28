@@ -79,7 +79,7 @@ export default async function DashboardPage() {
 						className="border-indigo-300/60 hover:bg-indigo-50 dark:hover:bg-indigo-950"
 						asChild
 					>
-						<Link href="/boards/create">Create project</Link>
+						<Link href="/create-project">Create project</Link>
 					</Button>
 				</div>
 			</div>
@@ -104,7 +104,7 @@ export default async function DashboardPage() {
 								card, or create a project and start planning.
 								<div className="mt-4">
 									<Button asChild>
-										<Link href="/boards/create">Create project</Link>
+										<Link href="/create-project">Create project</Link>
 									</Button>
 								</div>
 							</div>

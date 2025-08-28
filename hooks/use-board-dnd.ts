@@ -44,9 +44,11 @@ export function useBoardDnd(
 			setBoard({ ...current, columns: reindexed });
 
 			try {
+				const now = new Date().toISOString();
 				await client.mutate({
 					mutation: MOVE_COLUMN,
 					variables: { columnId: moved.id, newOrder: destination.index },
+					// IMPORTANT: match your ColumnFields fragment 1:1
 					optimisticResponse: {
 						moveColumn: {
 							__typename: "Column",
@@ -54,7 +56,26 @@ export function useBoardDnd(
 							boardId: current.id,
 							title: moved.title,
 							order: destination.index,
-							cards: moved.cards ?? [],
+							description: moved.description ?? null,
+							startDate: moved.startDate ?? null,
+							endDate: moved.endDate ?? null,
+							status: moved.status ?? "ACTIVE",
+							createdAt: moved.createdAt ?? now,
+							updatedAt: now,
+							// cards must also match CardFields if your fragment includes it
+							cards: (moved.cards ?? []).map((c) => ({
+								__typename: "Card",
+								id: c.id,
+								columnId: c.columnId ?? moved.id,
+								title: c.title,
+								description: c.description ?? null,
+								order: typeof c.order === "number" ? c.order : 0,
+								assignedTo: c.assignedTo ?? null,
+								dueDate: c.dueDate ?? null,
+								completed: !!c.completed,
+								createdAt: c.createdAt ?? now,
+								updatedAt: c.updatedAt ?? now,
+							})),
 						} satisfies ColumnT & { __typename: "Column" },
 					},
 				});
@@ -98,6 +119,7 @@ export function useBoardDnd(
 			setBoard({ ...current, columns: normalized });
 
 			try {
+				const now = new Date().toISOString();
 				await client.mutate({
 					mutation: MOVE_CARD,
 					variables: { cardId, newColumnId: toId, newOrder: insertAt },
@@ -110,8 +132,8 @@ export function useBoardDnd(
 							title: movedCard.title,
 							description: movedCard.description ?? null,
 							assignedTo: movedCard.assignedTo ?? null,
-							createdAt: movedCard.createdAt ?? new Date().toISOString(),
-							updatedAt: new Date().toISOString(),
+							createdAt: movedCard.createdAt ?? now,
+							updatedAt: now,
 							dueDate: movedCard.dueDate ?? null,
 							completed: movedCard.completed ?? false,
 						} satisfies CardT & { __typename: "Card" },

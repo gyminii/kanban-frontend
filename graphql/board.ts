@@ -53,12 +53,40 @@ export const BOARDS_QUERY = gql`
 `;
 
 export const CREATE_BOARD = gql`
-	mutation CreateBoard($title: String!, $ownerId: String!) {
-		createBoard(title: $title, ownerId: $ownerId) {
-			...BoardFields
+	mutation CreateBoard(
+		$title: String!
+		$ownerId: String!
+		$description: String
+		$color: String
+		$isFavorite: Boolean
+		$isArchived: Boolean
+		$tags: [String!]
+	) {
+		createBoard(
+			title: $title
+			ownerId: $ownerId
+			description: $description
+			color: $color
+			isFavorite: $isFavorite
+			isArchived: $isArchived
+			tags: $tags
+		) {
+			id
+			title
+			ownerId
+			members
+			description
+			color
+			isFavorite
+			isArchived
+			tags
+			createdAt
+			updatedAt
+			columns {
+				id
+			}
 		}
 	}
-	${BOARD_FIELDS}
 `;
 
 export const INVITE_MEMBER = gql`

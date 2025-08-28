@@ -179,7 +179,7 @@ export default async function DashboardPage() {
 							<Badge variant="secondary">{boards.length}</Badge>
 						</div>
 						<Button variant="outline" size="sm" asChild>
-							<Link href="/boards/create">Create</Link>
+							<Link href="/create-project">Create</Link>
 						</Button>
 					</div>
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CardItem from "@/components/kanban/card";
 import type { ColumnT } from "@/components/kanban/types";
+import NewCardButton from "../new-card.button";
 
 export default function Column({
 	index,
@@ -72,15 +73,11 @@ export default function Column({
 							)}
 						</Droppable>
 
-						<div className="border-t p-2">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="w-full"
-								onClick={onAddCard}
-							>
-								+ Add Card
-							</Button>
+						<div className="border-t px-3 py-2">
+							<NewCardButton
+								columnId={column.id}
+								nextOrder={column.cards.length}
+							/>
 						</div>
 					</div>
 				</div>

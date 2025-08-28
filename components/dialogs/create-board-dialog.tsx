@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { BoardT } from "../kanban/types";
 
 type Props = { userId: string };
 
@@ -72,7 +73,7 @@ export default function CreateBoardDialog({ userId }: Props) {
 		try {
 			// ---- 1) Create board with optional fields ----
 			const nowISO = new Date().toISOString();
-			const { data } = await client.mutate<{ createBoard: { id: string } }>({
+			const { data } = await client.mutate<{ createBoard: BoardT }>({
 				mutation: CREATE_BOARD,
 				variables: {
 					title,
@@ -98,15 +99,14 @@ export default function CreateBoardDialog({ userId }: Props) {
 						tags: parsedTags,
 						createdAt: nowISO,
 						updatedAt: nowISO,
-						// if your CREATE_BOARD selection includes columns {...}, return an empty list
-						columns: [], // [] is valid and prevents "Missing field 'columns'" warnings
+						columns: [],
 					},
 				},
 			});
 
 			const newBoardId = data?.createBoard?.id;
 			if (!newBoardId) {
-				router.replace("/");
+				router.replace("/dashboard");
 				return;
 			}
 

@@ -1,6 +1,7 @@
 export type ISODate = string;
 
 export type CardT = {
+	__typename?: "Card";
 	id: string;
 	columnId: string;
 	title: string;
@@ -14,6 +15,7 @@ export type CardT = {
 };
 
 export type ColumnT = {
+	__typename?: "Column";
 	id: string;
 	boardId: string;
 	title: string;
@@ -28,6 +30,7 @@ export type ColumnT = {
 };
 
 export type BoardT = {
+	__typename?: "Board";
 	id: string;
 	title: string;
 	ownerId: string;

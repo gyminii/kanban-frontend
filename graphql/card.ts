@@ -2,6 +2,7 @@ import { gql } from "@apollo/client";
 
 export const CARD_FIELDS = gql`
 	fragment CardFields on Card {
+		__typename
 		id
 		columnId
 		title

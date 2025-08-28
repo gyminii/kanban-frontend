@@ -45,7 +45,7 @@ export function useBoardDnd(
 
 			try {
 				const now = new Date().toISOString();
-				await client.mutate({
+				await client.mutate<{ moveColumn: ColumnT }>({
 					mutation: MOVE_COLUMN,
 					variables: { columnId: moved.id, newOrder: destination.index },
 					// IMPORTANT: match your ColumnFields fragment 1:1
@@ -76,7 +76,7 @@ export function useBoardDnd(
 								createdAt: c.createdAt ?? now,
 								updatedAt: c.updatedAt ?? now,
 							})),
-						} satisfies ColumnT & { __typename: "Column" },
+						},
 					},
 				});
 			} catch {
@@ -120,7 +120,7 @@ export function useBoardDnd(
 
 			try {
 				const now = new Date().toISOString();
-				await client.mutate({
+				await client.mutate<{ moveCard: CardT }>({
 					mutation: MOVE_CARD,
 					variables: { cardId, newColumnId: toId, newOrder: insertAt },
 					optimisticResponse: {

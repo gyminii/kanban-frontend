@@ -7,7 +7,7 @@ import CreateCardDialog from "./dialogs/create-card-dialog";
 
 type Props = {
 	columnId: string;
-	nextOrder: number; // usually column.cards.length
+	nextOrder: number;
 };
 
 export default function NewCardButton({ columnId, nextOrder }: Props) {

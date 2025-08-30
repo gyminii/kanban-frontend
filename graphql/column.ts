@@ -21,7 +21,14 @@ export const COLUMN_FIELDS = gql`
 	}
 	${CARD_FIELDS}
 `;
-
+export const COLUMN_QUERY = gql`
+	query Column($columnId: ID!) {
+		column(columnId: $columnId) {
+			...ColumnFields
+		}
+	}
+	${COLUMN_FIELDS}
+`;
 export const ADD_COLUMN = gql`
 	mutation AddColumn(
 		$boardId: ID!

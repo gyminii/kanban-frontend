@@ -13,7 +13,7 @@ import type { BoardT, ColumnT, CardT } from "@/components/kanban/types";
 
 type QueryData = { board: BoardT };
 
-export function useBoardDnd() {
+export function useSample() {
 	const params = useParams<{ boardId: string | string[] }>();
 	const rawBoardId = params?.boardId;
 	const boardId = Array.isArray(rawBoardId) ? rawBoardId[0] : rawBoardId;

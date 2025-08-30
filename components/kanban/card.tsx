@@ -1,7 +1,7 @@
 "use client";
 
 import { Draggable } from "@hello-pangea/dnd";
-import { Clock, MoreHorizontal, User } from "lucide-react";
+import { Clock, MoreHorizontal, User, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CardT } from "@/components/kanban/types";
 import Pill from "@/components/kanban/pill";
@@ -29,13 +29,21 @@ export default function CardItem({
 				<div
 					ref={provided.innerRef}
 					{...provided.draggableProps}
-					{...provided.dragHandleProps}
 					className={cn(
 						"rounded-xl border bg-white dark:bg-neutral-900 p-3 shadow-sm hover:shadow transition-shadow",
 						snapshot.isDragging ? "rotate-1 border-indigo-400 shadow-md" : ""
 					)}
 				>
 					<div className="mb-2 flex items-center gap-2">
+						{/* small drag handle so other controls don't interfere */}
+						<div
+							{...provided.dragHandleProps}
+							className="mr-1 h-5 w-5 shrink-0 rounded border flex items-center justify-center cursor-grab active:cursor-grabbing text-neutral-400"
+							title="Drag card"
+						>
+							<GripVertical className="h-3.5 w-3.5" />
+						</div>
+
 						{card.completed ? (
 							<Pill tone="green">Completed</Pill>
 						) : overdue ? (
@@ -60,6 +68,7 @@ export default function CardItem({
 						<button
 							className="rounded-md p-1 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-800"
 							title="More"
+							onMouseDown={(e) => e.stopPropagation()} // keep button from initiating drag
 						>
 							<MoreHorizontal className="h-4 w-4" />
 						</button>

@@ -1,30 +1,31 @@
 "use client";
-
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
-import type { Reference } from "@apollo/client";
 import { CalendarIcon } from "lucide-react";
+import * as React from "react";
+import { v4 as uuidv4 } from "uuid";
 
-import { ADD_CARD, CARD_FIELDS } from "@/graphql/card";
+import type { CardT } from "@/components/kanban/types";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-	DialogDescription,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import type { CardT } from "@/components/kanban/types";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { BOARD_QUERY } from "@/graphql/board";
+import { ADD_CARD } from "@/graphql/card";
+import { useParams } from "next/navigation";
 
 type Props = {
 	open: boolean;
@@ -32,10 +33,14 @@ type Props = {
 	columnId: string;
 	nextOrder?: number;
 };
-type ReadField = <V = unknown>(
-	fieldName: string,
-	ref: Reference
-) => V | undefined;
+
+type FormState = {
+	title: string;
+	description: string;
+	assignedTo: string;
+	dueDate?: Date;
+	completed: boolean;
+};
 
 export default function CreateCardDialog({
 	open,
@@ -44,33 +49,46 @@ export default function CreateCardDialog({
 	nextOrder = 0,
 }: Props) {
 	const client = useApolloClient();
-
+	const { boardId } = useParams<{ boardId: string }>();
 	const [submitting, setSubmitting] = React.useState(false);
-	const [title, setTitle] = React.useState("");
-	const [description, setDescription] = React.useState("");
-	const [assignedTo, setAssignedTo] = React.useState("");
-	const [dueDate, setDueDate] = React.useState<Date | undefined>(undefined);
-	const [completed, setCompleted] = React.useState(false);
+	const [form, setForm] = React.useState<FormState>({
+		title: "",
+		description: "",
+		assignedTo: "",
+		dueDate: undefined,
+		completed: false,
+	});
+
+	function resetAndClose() {
+		setForm({
+			title: "",
+			description: "",
+			assignedTo: "",
+			dueDate: undefined,
+			completed: false,
+		});
+		onOpenChange(false);
+	}
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		if (!title.trim() || submitting) return;
+		if (!form.title.trim() || submitting) return;
 
 		const now = new Date().toISOString();
-		const dueISO = dueDate
-			? new Date(dueDate.setHours(12, 0, 0, 0)).toISOString()
+		const dueISO = form.dueDate
+			? new Date(form.dueDate.setHours(12, 0, 0, 0)).toISOString()
 			: null;
-
+		const clientid = `card-${uuidv4()}`;
 		const optimisticCard: CardT = {
 			__typename: "Card",
-			id: `optimistic-card-${Date.now()}`,
+			id: clientid,
 			columnId,
-			title: title.trim(),
-			description: description.trim() || null,
-			order: nextOrder, // appended to end
-			assignedTo: assignedTo.trim() || null,
+			title: form.title.trim(),
+			description: form.description.trim() || null,
+			order: nextOrder,
+			assignedTo: form.assignedTo.trim() || null,
 			dueDate: dueISO,
-			completed,
+			completed: form.completed,
 			createdAt: now,
 			updatedAt: now,
 		};
@@ -87,60 +105,14 @@ export default function CreateCardDialog({
 					dueDate: optimisticCard.dueDate,
 					completed: optimisticCard.completed,
 				},
-				optimisticResponse: { addCard: optimisticCard } as { addCard: CardT },
-				update: (cache, { data }) => {
-					const added = data?.addCard;
-					if (!added) return;
-
-					// Normalize the new card into the cache as a Reference
-					const newRef = cache.writeFragment({
-						fragment: CARD_FIELDS,
-						data: added,
-					}) as Reference;
-
-					// Append it to the Column.cards list
-					cache.modify({
-						id: cache.identify({ __typename: "Column", id: columnId }),
-						fields: {
-							cards(
-								existing: Reference | ReadonlyArray<Reference> | undefined,
-								helpers: { readField: ReadField }
-							): Reference | ReadonlyArray<Reference> | undefined {
-								const { readField } = helpers;
-
-								// normalize to array
-								const list: ReadonlyArray<Reference> = Array.isArray(existing)
-									? existing
-									: existing
-									? [existing]
-									: [];
-
-								// de-dupe by id
-								const newId = readField<string>("id", newRef);
-								const has = list.some(
-									(ref) => readField<string>("id", ref) === newId
-								);
-
-								const next = has ? list : [...list, newRef];
-
-								// return same shape as input
-								return Array.isArray(existing) ? next : next[0];
-							},
-						},
-					});
-				},
+				optimisticResponse: { addCard: optimisticCard },
+				refetchQueries: [{ query: BOARD_QUERY, variables: { boardId } }],
+				awaitRefetchQueries: true,
 			});
 
-			// reset + close
-			setTitle("");
-			setDescription("");
-			setAssignedTo("");
-			setDueDate(undefined);
-			setCompleted(false);
-			onOpenChange(false);
+			resetAndClose();
 		} catch (err) {
 			console.error(err);
-			// keep dialog open to allow correction if needed
 		} finally {
 			setSubmitting(false);
 		}
@@ -157,13 +129,14 @@ export default function CreateCardDialog({
 				</DialogHeader>
 
 				<form onSubmit={onSubmit} className="space-y-4">
-					{/* Title */}
 					<div className="grid gap-2">
 						<Label htmlFor="title">Title</Label>
 						<Input
 							id="title"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
+							value={form.title}
+							onChange={(e) =>
+								setForm((f) => ({ ...f, title: e.target.value }))
+							}
 							placeholder="Write a clear task name"
 							required
 							disabled={submitting}
@@ -171,27 +144,29 @@ export default function CreateCardDialog({
 						/>
 					</div>
 
-					{/* Description */}
 					<div className="grid gap-2">
 						<Label htmlFor="description">Description (optional)</Label>
 						<Textarea
 							id="description"
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
+							value={form.description}
+							onChange={(e) =>
+								setForm((f) => ({ ...f, description: e.target.value }))
+							}
 							placeholder="Add context or checklists"
 							disabled={submitting}
 							className="min-h-[90px]"
 						/>
 					</div>
 
-					{/* Assigned + Due */}
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div className="grid gap-2">
 							<Label htmlFor="assignedTo">Assigned to (user ID)</Label>
 							<Input
 								id="assignedTo"
-								value={assignedTo}
-								onChange={(e) => setAssignedTo(e.target.value)}
+								value={form.assignedTo}
+								onChange={(e) =>
+									setForm((f) => ({ ...f, assignedTo: e.target.value }))
+								}
 								placeholder="u_12345"
 								disabled={submitting}
 							/>
@@ -208,8 +183,8 @@ export default function CreateCardDialog({
 										disabled={submitting}
 									>
 										<CalendarIcon className="mr-2 h-4 w-4" />
-										{dueDate ? (
-											dueDate.toDateString()
+										{form.dueDate ? (
+											form.dueDate.toDateString()
 										) : (
 											<span>Pick a date</span>
 										)}
@@ -218,8 +193,10 @@ export default function CreateCardDialog({
 								<PopoverContent className="p-0" align="start">
 									<Calendar
 										mode="single"
-										selected={dueDate}
-										onSelect={setDueDate}
+										selected={form.dueDate}
+										onSelect={(d) =>
+											setForm((f) => ({ ...f, dueDate: d ?? undefined }))
+										}
 										initialFocus
 									/>
 								</PopoverContent>
@@ -227,7 +204,6 @@ export default function CreateCardDialog({
 						</div>
 					</div>
 
-					{/* Completed */}
 					<div className="flex items-center justify-between rounded-md border bg-card px-3 py-2">
 						<div className="space-y-0.5">
 							<div className="text-sm font-medium">Mark as completed</div>
@@ -236,8 +212,8 @@ export default function CreateCardDialog({
 							</div>
 						</div>
 						<Switch
-							checked={completed}
-							onCheckedChange={setCompleted}
+							checked={form.completed}
+							onCheckedChange={(v) => setForm((f) => ({ ...f, completed: v }))}
 							disabled={submitting}
 						/>
 					</div>
@@ -246,7 +222,7 @@ export default function CreateCardDialog({
 						<Button
 							type="button"
 							variant="ghost"
-							onClick={() => onOpenChange(false)}
+							onClick={resetAndClose}
 							disabled={submitting}
 						>
 							Cancel

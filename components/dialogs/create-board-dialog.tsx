@@ -8,6 +8,8 @@ import { Sparkles, Users, Boxes, LayoutDashboard } from "lucide-react";
 import { CREATE_BOARD, INVITE_MEMBER } from "@/graphql/board";
 import { ADD_COLUMN } from "@/graphql/column";
 
+import { v4 as uuidv4 } from "uuid";
+
 import {
 	Dialog,
 	DialogContent,
@@ -20,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { BoardT } from "../kanban/types";
+import { BoardT, ColumnT } from "../kanban/types";
 
 type Props = { userId: string };
 
@@ -71,8 +73,23 @@ export default function CreateBoardDialog({ userId }: Props) {
 
 		setSubmitting(true);
 		try {
-			// ---- 1) Create board with optional fields ----
-			const nowISO = new Date().toISOString();
+			const now = new Date().toISOString();
+			const clientId = `board-${uuidv4()}`;
+			const optimisticBoard: BoardT = {
+				__typename: "Board",
+				id: clientId,
+				title,
+				ownerId: userId,
+				members: [],
+				description: description.trim() || null,
+				color: color || null,
+				isFavorite,
+				isArchived,
+				tags: parsedTags,
+				createdAt: now,
+				updatedAt: now,
+				columns: [],
+			};
 			const { data } = await client.mutate<{ createBoard: BoardT }>({
 				mutation: CREATE_BOARD,
 				variables: {
@@ -84,23 +101,22 @@ export default function CreateBoardDialog({ userId }: Props) {
 					isArchived,
 					tags: parsedTags.length ? parsedTags : null,
 				},
-				// IMPORTANT: include every field your CREATE_BOARD selection (or fragment) requests
 				optimisticResponse: {
-					createBoard: {
-						__typename: "Board",
-						id: "optimistic-board",
-						title,
-						ownerId: userId,
-						members: [],
-						description: description.trim() || null,
-						color: color || null,
-						isFavorite,
-						isArchived,
-						tags: parsedTags,
-						createdAt: nowISO,
-						updatedAt: nowISO,
-						columns: [],
-					},
+					createBoard: optimisticBoard,
+				},
+				update(cache, { data }) {
+					const real = data?.createBoard;
+					if (!real) return;
+
+					// Replace clientId with real id
+					cache.modify({
+						id: cache.identify({ __typename: "Board", id: optimisticBoard.id }),
+						fields: {
+							id() {
+								return real.id;
+							},
+						},
+					});
 				},
 			});
 
@@ -110,31 +126,33 @@ export default function CreateBoardDialog({ userId }: Props) {
 				return;
 			}
 
-			// ---- 2) Optional default columns ----
 			if (createDefaults) {
-				const colNowISO = new Date().toISOString();
-				for (const colTitle of ["Backlog", "In Progress", "Done"]) {
+				for (const [index, title] of [
+					"Backlog",
+					"In Progress",
+					"Done",
+				].entries()) {
+					const columnNow = new Date().toISOString();
+					const clientId = `column-${uuidv4()}`;
+					const optimisticColumn: ColumnT = {
+						__typename: "Column",
+						id: clientId,
+						boardId: newBoardId,
+						title: title,
+						order: index,
+						description: null,
+						startDate: null,
+						endDate: null,
+						status: null,
+						createdAt: columnNow,
+						updatedAt: columnNow,
+						cards: [],
+					};
 					await client.mutate({
 						mutation: ADD_COLUMN,
-						variables: { boardId: newBoardId, title: colTitle },
-						// IMPORTANT: include every field your Column fragment asks for
+						variables: { boardId: newBoardId, title: title },
 						optimisticResponse: {
-							addColumn: {
-								__typename: "Column",
-								id: `${newBoardId}-${colTitle}-temp`,
-								boardId: newBoardId,
-								title: colTitle,
-								order: 999,
-								// new extended fields on Column:
-								description: null,
-								startDate: null,
-								endDate: null,
-								status: null,
-								createdAt: colNowISO,
-								updatedAt: colNowISO,
-								// cards list (likely included in your fragment)
-								cards: [], // if CardFields fragment is spread, this can be []
-							},
+							addColumn: optimisticColumn,
 						},
 					});
 				}
@@ -145,8 +163,6 @@ export default function CreateBoardDialog({ userId }: Props) {
 				await client.mutate({
 					mutation: INVITE_MEMBER,
 					variables: { boardId: newBoardId, memberUserId },
-					// Keep the selection for INVITE_MEMBER minimal on the GQL side if possible:
-					// e.g. mutation InviteMember { inviteMember(boardId:..., memberUserId:...) { id members updatedAt } }
 					optimisticResponse: {
 						inviteMember: {
 							__typename: "Board",

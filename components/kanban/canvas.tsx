@@ -3,19 +3,15 @@
 import { DragDropContext, Droppable, type DropResult } from "@hello-pangea/dnd";
 import Column from "@/components/kanban/column";
 import type { ColumnT } from "@/components/kanban/types";
+import { useBoardDnd } from "@/hooks/use-board-dnd";
 
-export default function KanbanCanvas({
-	columns,
-	onDragEnd,
-}: {
-	columns?: ColumnT[];
-	onDragEnd: (result: DropResult) => void;
-}) {
-	const cols: ColumnT[] = (columns ?? [])
-		.filter((c): c is ColumnT => !!c && typeof c.id === "string")
-		.slice()
-		.sort((a, b) => a.order - b.order);
+export default function KanbanCanvas() {
+	const { board, onDragEnd } = useBoardDnd();
 
+	const columns = board.columns ?? [];
+	const cols: ColumnT[] = (columns ?? []).filter(
+		(c): c is ColumnT => !!c && typeof c.id === "string"
+	);
 	return (
 		<div className="relative h-full rounded-xl border bg-muted/30 dark:bg-muted/20 shadow-sm">
 			{/* left & right edge fades */}
@@ -40,15 +36,8 @@ export default function KanbanCanvas({
 								"motion-safe:[scroll-behavior:smooth]",
 							].join(" ")}
 						>
-							{cols.map((col, index) => (
-								<div
-									key={col.id}
-									className="snap-start shrink-0"
-									// a sane default width for columns so they look tidy
-									style={{ minWidth: 320, maxWidth: 360 }}
-								>
-									<Column index={index} column={col} />
-								</div>
+							{cols.map((col, i) => (
+								<Column key={col.id} index={i} column={col} />
 							))}
 							{dropProvided.placeholder}
 						</div>

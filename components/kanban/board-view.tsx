@@ -58,7 +58,7 @@ export default function BoardView() {
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div className="min-w-0">
 							<div className="flex flex-wrap items-center gap-2">
-								<h1 className="truncate text-xl font-bold tracking-tight text-indigo-700 dark:text-indigo-400 sm:text-2xl">
+								<h1 className="truncate text-xl font-bold leading-tight tracking-tight text-indigo-700 dark:text-indigo-400 sm:text-2xl">
 									{board.title}
 								</h1>
 
@@ -162,7 +162,7 @@ export default function BoardView() {
 				style={{ boxShadow: `inset 0 1px 0 0 ${accent}1a` }}
 			>
 				<div className="h-full w-full rounded-2xl p-2 sm:p-3">
-					<KanbanCanvas columns={board.columns ?? []} onDragEnd={onDragEnd} />
+					<KanbanCanvas />
 				</div>
 			</div>
 		</div>

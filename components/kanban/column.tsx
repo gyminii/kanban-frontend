@@ -28,13 +28,9 @@ import DeleteColumnDialog from "../dialogs/delete-column-dialog";
 export default function Column({
 	index,
 	column,
-	onEditColumn,
-	onDeleteColumn,
 }: {
 	index: number;
 	column: ColumnT;
-	onEditColumn?: () => void;
-	onDeleteColumn?: () => void;
 }) {
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
@@ -96,7 +92,9 @@ export default function Column({
 				<div
 					ref={dragProvided.innerRef}
 					{...dragProvided.draggableProps}
-					className="w-[18rem] sm:w-80 shrink-0 h-full flex flex-col"
+					// FIX: non-flexing fixed width + scroll-snap; forward style from DnD
+					className="flex-none w-80 basis-80 h-full snap-start flex flex-col"
+					style={dragProvided.draggableProps.style}
 				>
 					{/* Header */}
 					<div className="mb-2 rounded-lg border bg-white dark:bg-neutral-900 px-3 py-2 shadow-sm">
@@ -147,7 +145,7 @@ export default function Column({
 							</div>
 						</div>
 
-						{/* NEW: Secondary header (description) */}
+						{/* Secondary header (description) */}
 						{column.description ? (
 							<p className="mt-1 line-clamp-2 min-h-[0] text-[11px] text-neutral-600 dark:text-neutral-300">
 								{column.description}
@@ -237,6 +235,7 @@ export default function Column({
 							/>
 						</div>
 					</div>
+
 					<EditColumnDialog
 						open={editOpen}
 						onOpenChange={setEditOpen}

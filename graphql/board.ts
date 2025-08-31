@@ -27,6 +27,10 @@ export const BOARD_FIELDS = gql`
 		members
 		createdAt
 		updatedAt
+		isFavorite
+		tags
+		description
+		color
 		columns {
 			...ColumnFields
 		}
@@ -96,4 +100,35 @@ export const INVITE_MEMBER = gql`
 		}
 	}
 	${BOARD_FIELDS}
+`;
+
+export const UPDATE_BOARD = gql`
+	mutation UpdateBoard(
+		$boardId: ID!
+		$title: String
+		$description: String
+		$color: String
+		$isFavorite: Boolean
+		$isArchived: Boolean
+		$tags: [String!]
+	) {
+		updateBoard(
+			boardId: $boardId
+			title: $title
+			description: $description
+			color: $color
+			isFavorite: $isFavorite
+			isArchived: $isArchived
+			tags: $tags
+		) {
+			...BoardFields
+		}
+	}
+	${BOARD_FIELDS}
+`;
+
+export const DELETE_BOARD = gql`
+	mutation DeleteBoard($boardId: ID!) {
+		deleteBoard(boardId: $boardId)
+	}
 `;

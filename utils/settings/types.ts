@@ -1,8 +1,7 @@
 export type ThemeSetting = "light" | "dark";
 
 export type UserSettings = {
-	theme: ThemeSetting;
+	theme: "light" | "dark";
 	lastBoardId: string | null;
-	leftSidebarOpen: boolean;
-	rightSidebarOpen: boolean;
+	isSidebarOpen: boolean;
 };

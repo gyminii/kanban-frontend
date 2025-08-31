@@ -1,36 +1,43 @@
 "use client";
 
-import * as React from "react";
 import type { UserSettings } from "@/utils/settings/types";
 import { setSettings as serverSetSettings } from "@/utils/settings/server";
+import {
+	createContext,
+	ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 
 type Ctx = {
 	settings: UserSettings;
 	update: (s: Partial<UserSettings>) => Promise<void>;
 };
 
-const SettingsContext = React.createContext<Ctx | null>(null);
+const SettingsContext = createContext<Ctx | null>(null);
 
 export default function SettingsProvider({
 	initial,
 	children,
 }: {
 	initial: UserSettings;
-	children: React.ReactNode;
+	children: ReactNode;
 }) {
-	const [settings, setSettings] = React.useState<UserSettings>(initial);
+	const [settings, setSettings] = useState<UserSettings>(initial);
 
-	const update = React.useCallback(async (partial: Partial<UserSettings>) => {
+	const update = useCallback(async (partial: Partial<UserSettings>) => {
 		setSettings((prev) => ({ ...prev, ...partial }));
 		try {
 			await serverSetSettings(partial);
 		} catch {
-			/* ignore */
+			// no-op (keep UI state even if cookie write failed)
 		}
 	}, []);
 
 	// Apply dark/light class
-	React.useEffect(() => {
+	useEffect(() => {
 		const root = document.documentElement;
 		if (settings.theme === "dark") {
 			root.classList.add("dark");
@@ -46,8 +53,8 @@ export default function SettingsProvider({
 	);
 }
 
-export function useSettings() {
-	const ctx = React.useContext(SettingsContext);
+export function useSettings(): Ctx {
+	const ctx = useContext(SettingsContext);
 	if (!ctx) throw new Error("useSettings must be used within SettingsProvider");
 	return ctx;
 }

@@ -19,8 +19,7 @@ export function ThemeToggle() {
 			variant="outline"
 			size="icon"
 			className="rounded-md border-indigo-200 bg-white shadow-md backdrop-blur-md
-                 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-950 dark:hover:bg-indigo-900
-                 fixed top-4 right-4 z-50"
+             hover:bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-950 dark:hover:bg-indigo-900"
 		>
 			{isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
 		</Button>

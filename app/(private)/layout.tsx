@@ -1,48 +1,19 @@
-import {
-	SidebarInset,
-	SidebarProvider,
-	SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
+import SidebarProvider from "@/components/sidebar/sidebar-provider";
 import { ApolloProvider } from "@/utils/apollo/provider";
-import { BreadcrumbProvider } from "@/utils/breadcrumbs/breadcrumbs-provider";
-import { AppBreadcrumbs } from "@/components/app-breadcrumbs";
+import { Toaster } from "sonner";
 
-export default function Layout({
+export default async function Layout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<ApolloProvider>
-			<SidebarProvider
-				style={
-					{
-						"--sidebar-width": "19rem",
-					} as React.CSSProperties
-				}
-			>
-				<AppSidebar />
-				<SidebarInset>
-					<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-						<SidebarTrigger className="-ml-1" />
-						<Separator
-							orientation="vertical"
-							className="mr-2 data-[orientation=vertical]:h-4"
-						/>
-						<BreadcrumbProvider>
-							<AppBreadcrumbs />
-						</BreadcrumbProvider>
-					</header>
-					<div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
-				</SidebarInset>
+			<SidebarProvider>
+				{/* flex flex-1 min-w-0 min-h-0 flex-col gap-4 p-4 pt-0 overflow-hidden */}
+				{/* flex flex-1 flex-col gap-4 p-4 pt-0 */}
+				<div className="flex flex-1  flex-col gap-4 p-4 pt-0 overflow-hidden">
+					{children}
+					<Toaster />
+				</div>
 			</SidebarProvider>
 		</ApolloProvider>
 	);

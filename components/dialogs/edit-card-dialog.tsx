@@ -1,84 +1,81 @@
 "use client";
 
+import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
 import { CalendarIcon, Hash, Tag } from "lucide-react";
-import * as React from "react";
-import { v4 as uuidv4 } from "uuid";
-
+import { toast } from "sonner";
+import { UPDATE_CARD } from "@/graphql/card";
 import type { CardT } from "@/components/kanban/types";
+
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { BOARD_QUERY } from "@/graphql/board";
-import { ADD_CARD } from "@/graphql/card";
-import { useParams } from "next/navigation";
 
 type Props = {
 	open: boolean;
 	onOpenChange: (v: boolean) => void;
-	columnId: string;
-	nextOrder?: number;
+	card: CardT;
+};
+
+type UpdateCardPayload = {
+	updateCard: CardT;
 };
 
 type FormState = {
 	title: string;
 	description: string;
-	assignedTo: string;
 	dueDate?: Date;
 	completed: boolean;
 	tagsInput: string; // comma-separated tags
 };
 
-export default function CreateCardDialog({
-	open,
-	onOpenChange,
-	columnId,
-	nextOrder = 0,
-}: Props) {
+export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 	const client = useApolloClient();
-	const { boardId } = useParams<{ boardId: string }>();
 	const [submitting, setSubmitting] = React.useState(false);
-	const [form, setForm] = React.useState<FormState>({
-		title: "",
-		description: "",
-		assignedTo: "",
-		dueDate: undefined,
-		completed: false,
-		tagsInput: "",
-	});
 
-	function resetAndClose() {
+	const [form, setForm] = React.useState<FormState>(() => ({
+		title: card.title ?? "",
+		description: card.description ?? "",
+		dueDate: card.dueDate ? new Date(card.dueDate) : undefined,
+		completed: !!card.completed,
+		tagsInput: (card.tags ?? []).join(", "),
+	}));
+
+	React.useEffect(() => {
+		if (!open) return;
 		setForm({
-			title: "",
-			description: "",
-			assignedTo: "",
-			dueDate: undefined,
-			completed: false,
-			tagsInput: "",
+			title: card.title ?? "",
+			description: card.description ?? "",
+			dueDate: card.dueDate ? new Date(card.dueDate) : undefined,
+			completed: !!card.completed,
+			tagsInput: (card.tags ?? []).join(", "),
 		});
+	}, [open, card]);
+
+	function resetAndClose(): void {
 		onOpenChange(false);
 	}
 
-	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+	async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
 		e.preventDefault();
 		if (!form.title.trim() || submitting) return;
 
-		const now = new Date().toISOString();
+		const updatedAt = new Date().toISOString();
 		const dueISO = form.dueDate
 			? new Date(form.dueDate.setHours(12, 0, 0, 0)).toISOString()
 			: null;
@@ -88,43 +85,63 @@ export default function CreateCardDialog({
 			.map((t) => t.trim())
 			.filter(Boolean);
 
-		const clientid = `card-${uuidv4()}`;
-		const optimisticCard: CardT = {
-			__typename: "Card",
-			id: clientid,
-			columnId,
-			title: form.title.trim(),
-			description: form.description.trim() || null,
-			order: nextOrder,
-			assignedTo: form.assignedTo.trim() || null,
-			dueDate: dueISO,
-			completed: form.completed,
-			tags: parsedTags,
-			createdAt: now,
-			updatedAt: now,
-		};
-
 		setSubmitting(true);
 		try {
-			await client.mutate<{ addCard: CardT }>({
-				mutation: ADD_CARD,
+			const res = await client.mutate<UpdateCardPayload>({
+				mutation: UPDATE_CARD,
 				variables: {
-					columnId,
-					title: optimisticCard.title,
-					description: optimisticCard.description,
-					assignedTo: optimisticCard.assignedTo,
-					dueDate: optimisticCard.dueDate,
-					completed: optimisticCard.completed,
-					tags: parsedTags,
+					cardId: card.id,
+					title: form.title || null,
+					description: form.description || null,
+					assignedTo: null, // unchanged by this dialog/UI
+					dueDate: dueISO,
+					completed: form.completed,
+					tags: parsedTags.length ? parsedTags : [],
 				},
-				optimisticResponse: { addCard: optimisticCard },
-				refetchQueries: [{ query: BOARD_QUERY, variables: { boardId } }],
-				awaitRefetchQueries: true,
+				optimisticResponse: {
+					updateCard: {
+						__typename: "Card",
+						id: card.id,
+						columnId: card.columnId,
+						title: form.title,
+						description: form.description || null,
+						order: card.order,
+						assignedTo: card.assignedTo ?? null,
+						dueDate: dueISO,
+						completed: form.completed,
+						tags: parsedTags,
+						createdAt: card.createdAt,
+						updatedAt,
+					},
+				},
+				update(cache, { data }) {
+					const next = data?.updateCard;
+					const entityId = cache.identify({ __typename: "Card", id: card.id });
+					if (!entityId) return;
+
+					cache.modify({
+						id: entityId,
+						fields: {
+							title: () => (next ? next.title : form.title),
+							description: () =>
+								next ? next.description : form.description || null,
+							dueDate: () => (next ? next.dueDate : dueISO),
+							completed: () => (next ? next.completed : form.completed),
+							tags: () => (next ? next.tags : parsedTags),
+							updatedAt: () => (next ? next.updatedAt : updatedAt),
+						},
+					});
+				},
 			});
 
+			if (!res.data?.updateCard) {
+				throw new Error("No card returned");
+			}
+
+			toast.success("Card updated");
 			resetAndClose();
-		} catch (err) {
-			console.error(err);
+		} catch {
+			toast.error("Failed to update card");
 		} finally {
 			setSubmitting(false);
 		}
@@ -142,12 +159,12 @@ export default function CreateCardDialog({
 			<DialogContent className="sm:max-w-lg">
 				<DialogHeader>
 					<DialogTitle className="text-indigo-700 dark:text-indigo-400">
-						Create task
+						Edit task
 					</DialogTitle>
-					<DialogDescription>Add a new card to this column.</DialogDescription>
 				</DialogHeader>
 
 				<form onSubmit={onSubmit} className="space-y-4">
+					{/* Title */}
 					<div className="grid gap-2">
 						<Label htmlFor="title">Title</Label>
 						<Input
@@ -163,6 +180,7 @@ export default function CreateCardDialog({
 						/>
 					</div>
 
+					{/* Description */}
 					<div className="grid gap-2">
 						<Label htmlFor="description">Description (optional)</Label>
 						<Textarea
@@ -173,24 +191,12 @@ export default function CreateCardDialog({
 							}
 							placeholder="Add context or checklists"
 							disabled={submitting}
-							className="min-h-[90px]"
+							className="min-h-[96px]"
 						/>
 					</div>
 
+					{/* Due date + Completed */}
 					<div className="grid gap-4 sm:grid-cols-2">
-						<div className="grid gap-2">
-							<Label htmlFor="assignedTo">Assigned to (user ID)</Label>
-							<Input
-								id="assignedTo"
-								value={form.assignedTo}
-								onChange={(e) =>
-									setForm((f) => ({ ...f, assignedTo: e.target.value }))
-								}
-								placeholder="u_12345"
-								disabled={submitting}
-							/>
-						</div>
-
 						<div className="grid gap-2">
 							<Label>Due date</Label>
 							<Popover>
@@ -221,24 +227,25 @@ export default function CreateCardDialog({
 								</PopoverContent>
 							</Popover>
 						</div>
-					</div>
 
-					{/* Completed toggle */}
-					<div className="flex items-center justify-between rounded-md border bg-card px-3 py-2">
-						<div className="space-y-0.5">
-							<div className="text-sm font-medium">Mark as completed</div>
-							<div className="text-xs text-muted-foreground">
-								You can change this later.
+						<div className="flex items-center justify-between rounded-md border bg-card px-3 py-2">
+							<div className="space-y-0.5">
+								<div className="text-sm font-medium">Mark as completed</div>
+								<div className="text-xs text-muted-foreground">
+									You can change this later.
+								</div>
 							</div>
+							<Switch
+								checked={form.completed}
+								onCheckedChange={(v) =>
+									setForm((f) => ({ ...f, completed: v }))
+								}
+								disabled={submitting}
+							/>
 						</div>
-						<Switch
-							checked={form.completed}
-							onCheckedChange={(v) => setForm((f) => ({ ...f, completed: v }))}
-							disabled={submitting}
-						/>
 					</div>
 
-					{/* Tags */}
+					{/* Tags (comma-separated) */}
 					<div className="space-y-2">
 						<Label htmlFor="tags" className="flex items-center gap-1">
 							<Tag className="h-4 w-4 opacity-70" />
@@ -268,7 +275,7 @@ export default function CreateCardDialog({
 						)}
 					</div>
 
-					<div className="flex justify-end gap-2 pt-2">
+					<DialogFooter className="pt-2">
 						<Button
 							type="button"
 							variant="ghost"
@@ -282,9 +289,9 @@ export default function CreateCardDialog({
 							className="bg-indigo-600 text-white hover:bg-indigo-700"
 							disabled={submitting}
 						>
-							{submitting ? "Creating..." : "Create task"}
+							{submitting ? "Saving…" : "Save changes"}
 						</Button>
-					</div>
+					</DialogFooter>
 				</form>
 			</DialogContent>
 		</Dialog>

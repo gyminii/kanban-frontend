@@ -11,6 +11,7 @@ export const CARD_FIELDS = gql`
 		assignedTo
 		dueDate
 		completed
+		tags
 		createdAt
 		updatedAt
 	}
@@ -24,6 +25,7 @@ export const ADD_CARD = gql`
 		$assignedTo: String
 		$dueDate: DateTime
 		$completed: Boolean
+		$tags: [String!]
 	) {
 		addCard(
 			columnId: $columnId
@@ -32,6 +34,7 @@ export const ADD_CARD = gql`
 			assignedTo: $assignedTo
 			dueDate: $dueDate
 			completed: $completed
+			tags: $tags
 		) {
 			...CardFields
 		}
@@ -47,6 +50,7 @@ export const UPDATE_CARD = gql`
 		$assignedTo: String
 		$dueDate: DateTime
 		$completed: Boolean
+		$tags: [String!]
 	) {
 		updateCard(
 			cardId: $cardId
@@ -55,11 +59,18 @@ export const UPDATE_CARD = gql`
 			assignedTo: $assignedTo
 			dueDate: $dueDate
 			completed: $completed
+			tags: $tags
 		) {
 			...CardFields
 		}
 	}
 	${CARD_FIELDS}
+`;
+
+export const DELETE_CARD = gql`
+	mutation DeleteCard($cardId: ID!) {
+		deleteCard(cardId: $cardId)
+	}
 `;
 
 export const MOVE_CARD = gql`

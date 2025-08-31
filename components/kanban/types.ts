@@ -12,6 +12,7 @@ export type CardT = {
 	updatedAt: string;
 	dueDate?: string | null;
 	completed: boolean;
+	tags?: string[];
 };
 
 export type ColumnT = {

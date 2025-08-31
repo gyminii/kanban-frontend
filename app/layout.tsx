@@ -37,7 +37,6 @@ export default async function RootLayout({
 					disableTransitionOnChange
 				>
 					<SettingsProvider initial={initialSettings}>
-						<ThemeToggle />
 						<main className="min-h-screen">{children}</main>
 					</SettingsProvider>
 				</ThemeProvider>

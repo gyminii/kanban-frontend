@@ -1,15 +1,16 @@
-// hooks/use-sample.ts
 "use client";
 
-import * as React from "react";
 import type { DropResult } from "@hello-pangea/dnd";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 import { useApolloClient, useSuspenseQuery } from "@apollo/client/react";
+
 import { BOARD_QUERY } from "@/graphql/board";
 import { MOVE_COLUMN } from "@/graphql/column";
 import { MOVE_CARD } from "@/graphql/card";
 
 import type { BoardT, ColumnT, CardT } from "@/components/kanban/types";
+import { useCallback, useEffect, useRef } from "react";
 
 type QueryData = { board: BoardT };
 
@@ -20,34 +21,30 @@ export function useBoardDnd() {
 
 	const client = useApolloClient();
 
-	// Source of truth = Apollo cache (populated here)
 	const { data } = useSuspenseQuery<QueryData>(BOARD_QUERY, {
 		variables: { boardId },
 	});
 
 	const board = data.board;
 
-	// Keep a ref so DnD logic uses the latest snapshot
-	const boardRef = React.useRef<BoardT>(board);
-	React.useEffect(() => {
+	const boardRef = useRef<BoardT>(board);
+	useEffect(() => {
 		boardRef.current = board;
 	}, [board]);
 
-	// Write the updated board back to Apollo (no local state)
-	const writeBoard = React.useCallback(
+	const writeBoard = useCallback(
 		(next: BoardT) => {
 			client.writeQuery<QueryData>({
 				query: BOARD_QUERY,
 				variables: { boardId },
 				data: { board: next },
 			});
-			// update ref synchronously for the next DnD event
 			boardRef.current = next;
 		},
 		[client, boardId]
 	);
 
-	const refetchBoard = React.useCallback(async () => {
+	const refetchBoard = useCallback(async () => {
 		await client.query<QueryData>({
 			query: BOARD_QUERY,
 			variables: { boardId },
@@ -55,7 +52,7 @@ export function useBoardDnd() {
 		});
 	}, [client, boardId]);
 
-	const onDragEnd = React.useCallback(
+	const onDragEnd = useCallback(
 		async (result: DropResult) => {
 			const current = boardRef.current;
 			if (!current?.columns) return;
@@ -66,10 +63,10 @@ export function useBoardDnd() {
 				source.droppableId === destination.droppableId &&
 				source.index === destination.index
 			) {
-				return; // no move
+				return;
 			}
 
-			// --- COLUMNS ---
+			// --- Columns ---
 			if (type === "COLUMN") {
 				const movedId = draggableId.replace(/^col-/, "");
 				const ordered = [...current.columns].sort((a, b) => a.order - b.order);
@@ -97,7 +94,7 @@ export function useBoardDnd() {
 				return;
 			}
 
-			// --- CARDS ---
+			// --- Cards ---
 			if (type === "CARD") {
 				const fromId = source.droppableId;
 				const toId = destination.droppableId;
@@ -166,6 +163,92 @@ export function useBoardDnd() {
 					});
 				} catch {
 					await refetchBoard();
+					return;
+				}
+
+				if (fromId !== toId) {
+					const destTitle =
+						current.columns.find((c) => c.id === toId)?.title ?? "that column";
+					const undoInfo = {
+						cardId: movedCard.id,
+						fromId,
+						toId,
+						fromIndex: source.index,
+					};
+
+					toast.success(`Task moved to “${destTitle}”.`, {
+						action: {
+							label: "Undo",
+							onClick: async () => {
+								// Revert locally first for instant UI
+								const afterMove = boardRef.current;
+								if (!afterMove?.columns) return;
+
+								const colsClone: ColumnT[] = afterMove.columns.map((c) => ({
+									...c,
+									cards: c.cards.map((cd) => ({ ...cd })),
+								}));
+
+								const srcCol = colsClone.find((c) => c.id === undoInfo.toId);
+								const dstCol = colsClone.find((c) => c.id === undoInfo.fromId);
+								if (!srcCol || !dstCol) return;
+
+								const idxInSrc = srcCol.cards.findIndex(
+									(c) => c.id === undoInfo.cardId
+								);
+								if (idxInSrc < 0) return;
+
+								const card = srcCol.cards[idxInSrc];
+								const srcRemoved = srcCol.cards.filter(
+									(_, i) => i !== idxInSrc
+								);
+								const insertIdx = Math.max(
+									0,
+									Math.min(undoInfo.fromIndex, dstCol.cards.length)
+								);
+								const dstInserted = [
+									...dstCol.cards.slice(0, insertIdx),
+									card,
+									...dstCol.cards.slice(insertIdx),
+								];
+
+								const reverted = colsClone.map((c) => {
+									if (c.id === undoInfo.toId) {
+										return {
+											...c,
+											cards: srcRemoved.map((x, i) => ({ ...x, order: i })),
+										};
+									}
+									if (c.id === undoInfo.fromId) {
+										return {
+											...c,
+											cards: dstInserted.map((x, i) => ({
+												...x,
+												order: i,
+												columnId: undoInfo.fromId,
+											})),
+										};
+									}
+									return c;
+								});
+
+								writeBoard({ ...afterMove, columns: reverted });
+
+								try {
+									await client.mutate<{ moveCard: CardT }>({
+										mutation: MOVE_CARD,
+										variables: {
+											cardId: undoInfo.cardId,
+											newColumnId: undoInfo.fromId,
+											newOrder: insertIdx,
+										},
+									});
+								} catch {
+									await refetchBoard();
+								}
+							},
+						},
+					});
 				}
 			}
 		},

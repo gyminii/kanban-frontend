@@ -1,6 +1,6 @@
 "use client";
 
-import { HttpLink, Reference } from "@apollo/client";
+import { HttpLink } from "@apollo/client";
 import {
 	ApolloNextAppProvider,
 	ApolloClient,

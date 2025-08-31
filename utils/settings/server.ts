@@ -4,11 +4,11 @@ import { cookies } from "next/headers";
 import type { UserSettings } from "./types";
 
 const COOKIE_NAME = "app_settings";
+
 const DEFAULT_SETTINGS: UserSettings = {
 	theme: "light",
 	lastBoardId: null,
-	leftSidebarOpen: true,
-	rightSidebarOpen: false,
+	isSidebarOpen: true,
 };
 
 function parseSettings(value: string | undefined): UserSettings {
@@ -18,14 +18,10 @@ function parseSettings(value: string | undefined): UserSettings {
 		return {
 			theme: obj.theme === "dark" ? "dark" : "light",
 			lastBoardId: obj.lastBoardId ?? DEFAULT_SETTINGS.lastBoardId,
-			leftSidebarOpen:
-				typeof obj.leftSidebarOpen === "boolean"
-					? obj.leftSidebarOpen
-					: DEFAULT_SETTINGS.leftSidebarOpen,
-			rightSidebarOpen:
-				typeof obj.rightSidebarOpen === "boolean"
-					? obj.rightSidebarOpen
-					: DEFAULT_SETTINGS.rightSidebarOpen,
+			isSidebarOpen:
+				typeof obj.isSidebarOpen === "boolean"
+					? obj.isSidebarOpen
+					: DEFAULT_SETTINGS.isSidebarOpen,
 		};
 	} catch {
 		return DEFAULT_SETTINGS;

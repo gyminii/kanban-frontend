@@ -5,7 +5,10 @@ export function DatePicker() {
 	return (
 		<SidebarGroup className="px-0">
 			<SidebarGroupContent>
-				<Calendar className="w-full [&_[role=gridcell].bg-accent]:bg-sidebar-primary [&_[role=gridcell].bg-accent]:text-sidebar-primary-foreground [&_[role=gridcell]]:w-[38px]" />
+				<Calendar
+					mode="range"
+					className="w-full [&_[role=gridcell].bg-accent]:bg-sidebar-primary [&_[role=gridcell].bg-accent]:text-sidebar-primary-foreground [&_[role=gridcell]]:w-[38px]"
+				/>
 			</SidebarGroupContent>
 		</SidebarGroup>
 	);

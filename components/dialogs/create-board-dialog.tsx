@@ -33,7 +33,6 @@ export default function CreateBoardDialog({ userId }: Props) {
 	const [submitting, setSubmitting] = React.useState(false);
 	const nameRef = React.useRef<HTMLInputElement>(null);
 
-	// 👇 single state object for form
 	const [form, setForm] = React.useState({
 		description: "",
 		color: "#4f46e5",

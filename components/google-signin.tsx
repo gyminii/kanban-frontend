@@ -30,7 +30,6 @@ export function GoogleButton() {
 			{loading ? (
 				<Loader2 className="h-4 w-4 animate-spin" />
 			) : (
-				// Google "G" SVG
 				<svg width="18" height="18" viewBox="0 0 48 48" className="shrink-0">
 					<path
 						fill="#FFC107"

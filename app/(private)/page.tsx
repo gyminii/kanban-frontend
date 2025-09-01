@@ -14,7 +14,7 @@ export default async function Page() {
 
 	const { data } = await client.query<{ boards: { id: string }[] }>({
 		query: BOARDS_QUERY,
-		variables: { userId: user.id }, // <-- camelCase
+		variables: { userId: user.id },
 		fetchPolicy: "no-cache",
 	});
 	if (!data?.boards || data.boards.length === 0) {

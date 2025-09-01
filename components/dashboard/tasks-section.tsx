@@ -54,7 +54,7 @@ export default function TasksSection() {
 	const [view, setView] = useState<"cards" | "list">("cards");
 	const [items, setItems] = useState<ItemsT>([]);
 	const [loading, setLoading] = useState<boolean>(true);
-
+	console.log(selectedBoard);
 	useEffect(() => {
 		let mounted = true;
 		(async () => {
@@ -79,7 +79,6 @@ export default function TasksSection() {
 		};
 	}, [client, userId]);
 
-	// Fetch tasks whenever selected board changes
 	const refetchTasks = useCallback(
 		async (boardId: string | null) => {
 			const { data } = await client.query<{ getCards: CardT[] }>({
@@ -90,7 +89,7 @@ export default function TasksSection() {
 
 			const lookup = new Map(boards.map((b) => [b.id, b.title]));
 			const next: ItemsT = (data?.getCards ?? [])
-				.filter((c) => !c.boardId || lookup.has(c.boardId)) // keep only those in current boards list
+				.filter((c) => !c.boardId || lookup.has(c.boardId))
 				.map((c) => ({
 					...c,
 					boardId: c.boardId!,
@@ -106,13 +105,11 @@ export default function TasksSection() {
 		[client, userId, boards]
 	);
 
-	// Initial tasks load (all boards) after boards are loaded
 	useEffect(() => {
 		if (!boards.length) return;
 		refetchTasks(null);
 	}, [boards, refetchTasks]);
 
-	// When dropdown changes, refetch with board constraint (fires request you’ll see in Network)
 	const onBoardChange = useCallback(
 		async (val: string) => {
 			setSelectedBoard(val);
@@ -176,7 +173,7 @@ export default function TasksSection() {
 						{/* Card view */}
 						<TabsContent value="cards" className="m-0">
 							{count === 0 ? (
-								<EmptyState />
+								<EmptyState boardId={selectedBoard} />
 							) : (
 								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
 									{filtered.map((t) => (
@@ -258,7 +255,7 @@ export default function TasksSection() {
 						{/* List view */}
 						<TabsContent value="list" className="m-0">
 							{count === 0 ? (
-								<EmptyState />
+								<EmptyState boardId={selectedBoard} />
 							) : (
 								<div className="overflow-x-auto rounded-xl border">
 									<Table>
@@ -350,18 +347,34 @@ export default function TasksSection() {
 	);
 }
 
-function EmptyState() {
+function EmptyState({ boardId }: { boardId: string }) {
+	const isAll = !boardId || boardId === "all";
 	return (
 		<div className="px-8 py-12 text-center text-sm text-muted-foreground">
-			No tasks assigned to you.
-			<div className="mt-4">
-				<Button
-					asChild
-					className="bg-indigo-600 text-white hover:bg-indigo-600/90"
-				>
-					<Link href="/create-project">Create project</Link>
-				</Button>
+			<div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border">
+				<LayoutGrid className="h-5 w-5 opacity-70" />
 			</div>
+
+			{isAll ? (
+				<>
+					<div>No tasks assigned to you across all boards.</div>
+					<div className="mt-1 text-xs">
+						Choose a specific board to jump in.
+					</div>
+				</>
+			) : (
+				<>
+					<div>No tasks assigned to you in this board.</div>
+					<div className="mt-4">
+						<Button
+							asChild
+							className="bg-indigo-600 text-white hover:bg-indigo-600/90"
+						>
+							<Link href={`/boards/${boardId}`}>Go to Project</Link>
+						</Button>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }

@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useApolloClient } from "@apollo/client/react";
-import { Sparkles, Users, Boxes, LayoutDashboard } from "lucide-react";
-
-import { CREATE_BOARD, INVITE_MEMBER } from "@/graphql/board";
-import { ADD_COLUMN } from "@/graphql/column";
-
 import { v4 as uuidv4 } from "uuid";
+import { useApolloClient } from "@apollo/client/react";
+import { LayoutDashboard, Sparkles } from "lucide-react";
+
+import { CREATE_BOARD } from "@/graphql/board";
+import { ADD_COLUMN } from "@/graphql/column";
 
 import {
 	Dialog,
@@ -22,7 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { BoardT, ColumnT } from "../kanban/types";
+import { Badge } from "@/components/ui/badge";
+import type { BoardT, ColumnT } from "../kanban/types";
 
 type Props = { userId: string };
 
@@ -30,23 +30,28 @@ export default function CreateBoardDialog({ userId }: Props) {
 	const router = useRouter();
 	const client = useApolloClient();
 
-	// core
 	const [submitting, setSubmitting] = React.useState(false);
-	const [createDefaults, setCreateDefaults] = React.useState(true);
 	const nameRef = React.useRef<HTMLInputElement>(null);
 
-	// optional fields (persisted)
-	const [description, setDescription] = React.useState("");
-	const [color, setColor] = React.useState("#4f46e5"); // indigo default
-	const [isFavorite, setIsFavorite] = React.useState(false);
-	const [isArchived, setIsArchived] = React.useState(false);
-	const [tags, setTags] = React.useState(""); // comma-separated
+	// 👇 single state object for form
+	const [form, setForm] = React.useState({
+		description: "",
+		color: "#4f46e5",
+		isFavorite: false,
+		isArchived: false,
+		tags: "",
+		createDefaults: true,
+	});
 
-	// presets helper
-	const applyTemplate = (name: string, members?: string) => {
+	// quick helper to update state
+	const updateForm = <K extends keyof typeof form>(
+		key: K,
+		value: (typeof form)[K]
+	) => setForm((prev) => ({ ...prev, [key]: value }));
+
+	// quick template buttons
+	const applyTemplate = (name: string) => {
 		if (nameRef.current) nameRef.current.value = name;
-		const m = document.getElementById("members") as HTMLInputElement | null;
-		if (m && members) m.value = members;
 	};
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -55,18 +60,12 @@ export default function CreateBoardDialog({ userId }: Props) {
 
 		const fd = new FormData(e.currentTarget);
 		const title = (fd.get("title") as string)?.trim();
-		const rawMembers = (fd.get("members") as string)?.trim();
 		if (!title) {
 			nameRef.current?.focus();
 			return;
 		}
 
-		const memberIds = (rawMembers || "")
-			.split(",")
-			.map((s) => s.trim())
-			.filter(Boolean);
-
-		const parsedTags = tags
+		const parsedTags = form.tags
 			.split(",")
 			.map((t) => t.trim())
 			.filter(Boolean);
@@ -75,40 +74,38 @@ export default function CreateBoardDialog({ userId }: Props) {
 		try {
 			const now = new Date().toISOString();
 			const clientId = `board-${uuidv4()}`;
+
 			const optimisticBoard: BoardT = {
 				__typename: "Board",
 				id: clientId,
 				title,
 				ownerId: userId,
 				members: [],
-				description: description.trim() || null,
-				color: color || null,
-				isFavorite,
-				isArchived,
+				description: form.description.trim() || null,
+				color: form.color || null,
+				isFavorite: form.isFavorite,
+				isArchived: form.isArchived,
 				tags: parsedTags,
 				createdAt: now,
 				updatedAt: now,
 				columns: [],
 			};
+
 			const { data } = await client.mutate<{ createBoard: BoardT }>({
 				mutation: CREATE_BOARD,
 				variables: {
 					title,
 					ownerId: userId,
-					description: description.trim() || null,
-					color: color || null,
-					isFavorite,
-					isArchived,
+					description: optimisticBoard.description,
+					color: optimisticBoard.color,
+					isFavorite: form.isFavorite,
+					isArchived: form.isArchived,
 					tags: parsedTags.length ? parsedTags : null,
 				},
-				optimisticResponse: {
-					createBoard: optimisticBoard,
-				},
+				optimisticResponse: { createBoard: optimisticBoard },
 				update(cache, { data }) {
 					const real = data?.createBoard;
 					if (!real) return;
-
-					// Replace clientId with real id
 					cache.modify({
 						id: cache.identify({ __typename: "Board", id: optimisticBoard.id }),
 						fields: {
@@ -122,78 +119,61 @@ export default function CreateBoardDialog({ userId }: Props) {
 
 			const newBoardId = data?.createBoard?.id;
 			if (!newBoardId) {
-				router.replace("/dashboard");
+				router.back();
 				return;
 			}
 
-			if (createDefaults) {
-				for (const [index, title] of [
+			if (form.createDefaults) {
+				for (const [index, colTitle] of [
 					"Backlog",
 					"In Progress",
 					"Done",
 				].entries()) {
-					const columnNow = new Date().toISOString();
-					const clientId = `column-${uuidv4()}`;
+					const clientColId = `column-${uuidv4()}`;
+					const stamp = new Date().toISOString();
 					const optimisticColumn: ColumnT = {
 						__typename: "Column",
-						id: clientId,
+						id: clientColId,
 						boardId: newBoardId,
-						title: title,
+						title: colTitle,
 						order: index,
 						description: null,
 						startDate: null,
 						endDate: null,
 						status: null,
-						createdAt: columnNow,
-						updatedAt: columnNow,
+						createdAt: stamp,
+						updatedAt: stamp,
 						cards: [],
 					};
+
 					await client.mutate({
 						mutation: ADD_COLUMN,
-						variables: { boardId: newBoardId, title: title },
-						optimisticResponse: {
-							addColumn: optimisticColumn,
-						},
+						variables: { boardId: newBoardId, title: colTitle },
+						optimisticResponse: { addColumn: optimisticColumn },
 					});
 				}
 			}
 
-			// ---- 3) Optional invites ----
-			for (const memberUserId of memberIds) {
-				await client.mutate({
-					mutation: INVITE_MEMBER,
-					variables: { boardId: newBoardId, memberUserId },
-					optimisticResponse: {
-						inviteMember: {
-							__typename: "Board",
-							id: newBoardId,
-							members: memberIds, // or [...prevMembers, ...newOnes] if you track prev
-							updatedAt: new Date().toISOString(),
-						},
-					},
-				});
-			}
-
-			// ---- 4) Navigate to the new board ----
 			router.replace(`/boards/${newBoardId}`);
 		} catch (err) {
 			console.error(err);
-			router.replace("/");
+			router.back();
 		} finally {
 			setSubmitting(false);
 		}
 	}
 
+	const tagPreview = form.tags
+		.split(",")
+		.map((t) => t.trim())
+		.filter(Boolean)
+		.slice(0, 12);
+
 	return (
-		<Dialog open>
-			<DialogContent
-				className="h-screen min-w-screen max-w-none rounded-none border-0 p-0"
-				onPointerDownOutside={(e) => e.preventDefault()}
-				onEscapeKeyDown={(e) => e.preventDefault()}
-			>
-				{/* Responsive split: column on mobile, row on lg+ */}
+		<Dialog open onOpenChange={(v) => (v ? null : router.back())}>
+			<DialogContent className="h-screen min-w-screen max-w-none rounded-none border-0 p-0">
 				<div className="flex h-full flex-col lg:flex-row">
-					{/* Left: presets & instructions */}
+					{/* Left panel */}
 					<aside className="flex w-full flex-col justify-between bg-gradient-to-b from-indigo-600 via-indigo-600/95 to-indigo-700 text-indigo-50 lg:max-w-sm">
 						<div className="space-y-6 p-6 overflow-auto">
 							<div className="flex items-center gap-2">
@@ -245,24 +225,13 @@ export default function CreateBoardDialog({ userId }: Props) {
 									</Button>
 								</div>
 							</div>
-
-							<ul className="space-y-2 text-sm">
-								<li className="flex items-center gap-2">
-									<Users className="size-4" />
-									Invite by user ID (optional)
-								</li>
-								<li className="flex items-center gap-2">
-									<Boxes className="size-4" />
-									Toggle default columns any time
-								</li>
-							</ul>
 						</div>
 						<div className="border-t border-white/10 px-6 py-4 text-xs text-indigo-100/70">
 							Pro tip: you can rename or reorder columns later.
 						</div>
 					</aside>
 
-					{/* Right: form */}
+					{/* Right panel */}
 					<main className="flex flex-1 flex-col bg-muted/30">
 						<div className="flex items-center justify-between border-b px-6 py-4">
 							<DialogHeader className="space-y-0.5">
@@ -270,7 +239,7 @@ export default function CreateBoardDialog({ userId }: Props) {
 									Create a new project
 								</DialogTitle>
 								<DialogDescription className="text-xs text-muted-foreground">
-									Name it, invite teammates, and choose defaults.
+									Name it and choose defaults.
 								</DialogDescription>
 							</DialogHeader>
 						</div>
@@ -299,8 +268,8 @@ export default function CreateBoardDialog({ userId }: Props) {
 									id="description"
 									name="description"
 									placeholder="What is this project about?"
-									value={description}
-									onChange={(e) => setDescription(e.target.value)}
+									value={form.description}
+									onChange={(e) => updateForm("description", e.target.value)}
 									disabled={submitting}
 									className="min-h-[96px]"
 								/>
@@ -315,15 +284,15 @@ export default function CreateBoardDialog({ userId }: Props) {
 											id="color"
 											name="color"
 											type="color"
-											value={color}
-											onChange={(e) => setColor(e.target.value)}
+											value={form.color}
+											onChange={(e) => updateForm("color", e.target.value)}
 											disabled={submitting}
 											className="h-10 w-16 p-1"
-											title={color}
+											title={form.color}
 										/>
 										<Input
-											value={color}
-											onChange={(e) => setColor(e.target.value)}
+											value={form.color}
+											onChange={(e) => updateForm("color", e.target.value)}
 											disabled={submitting}
 											placeholder="#4f46e5"
 											aria-label="Color hex"
@@ -337,25 +306,24 @@ export default function CreateBoardDialog({ userId }: Props) {
 										id="tags"
 										name="tags"
 										placeholder="marketing, q3, priority"
-										value={tags}
-										onChange={(e) => setTags(e.target.value)}
+										value={form.tags}
+										onChange={(e) => updateForm("tags", e.target.value)}
 										disabled={submitting}
 									/>
+									{tagPreview.length > 0 && (
+										<div className="mt-2 flex flex-wrap gap-1">
+											{tagPreview.map((t) => (
+												<Badge
+													key={t}
+													variant="outline"
+													className="h-5 rounded-full"
+												>
+													{t}
+												</Badge>
+											))}
+										</div>
+									)}
 								</div>
-							</div>
-
-							{/* Members */}
-							<div className="space-y-2">
-								<Label htmlFor="members">Invite members (user IDs)</Label>
-								<Input
-									id="members"
-									name="members"
-									placeholder="comma-separated, e.g. u_123, u_456"
-									disabled={submitting}
-								/>
-								<p className="text-xs text-muted-foreground">
-									Use IDs your backend recognizes. You can invite more later.
-								</p>
 							</div>
 
 							{/* Toggles */}
@@ -368,8 +336,8 @@ export default function CreateBoardDialog({ userId }: Props) {
 										</div>
 									</div>
 									<Switch
-										checked={isFavorite}
-										onCheckedChange={setIsFavorite}
+										checked={form.isFavorite}
+										onCheckedChange={(v) => updateForm("isFavorite", v)}
 										disabled={submitting}
 									/>
 								</div>
@@ -382,8 +350,8 @@ export default function CreateBoardDialog({ userId }: Props) {
 										</div>
 									</div>
 									<Switch
-										checked={isArchived}
-										onCheckedChange={setIsArchived}
+										checked={form.isArchived}
+										onCheckedChange={(v) => updateForm("isArchived", v)}
 										disabled={submitting}
 									/>
 								</div>
@@ -398,8 +366,8 @@ export default function CreateBoardDialog({ userId }: Props) {
 									</div>
 								</div>
 								<Switch
-									checked={createDefaults}
-									onCheckedChange={setCreateDefaults}
+									checked={form.createDefaults}
+									onCheckedChange={(v) => updateForm("createDefaults", v)}
 									disabled={submitting}
 								/>
 							</div>

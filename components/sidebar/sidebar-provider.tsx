@@ -12,6 +12,7 @@ import * as React from "react";
 import { AppBreadcrumbs } from "../app-breadcrumbs";
 import { AppSidebar } from "../app-sidebar";
 import { ThemeToggle } from "../theme-toggle";
+import { useBoardDnd } from "@/hooks/use-board-dnd";
 
 export default function SidebarProvider({
 	children,
@@ -19,16 +20,14 @@ export default function SidebarProvider({
 	children: React.ReactNode;
 }) {
 	const {
-		settings: { isSidebarOpen },
+		settings: { isSidebarOpen, lastBoardId },
 		update,
 	} = useSettings();
 
 	return (
 		<AppSidebarProvider
 			open={isSidebarOpen}
-			onOpenChange={(open: boolean) => {
-				void update({ isSidebarOpen: open });
-			}}
+			onOpenChange={(open: boolean) => update({ isSidebarOpen: open })}
 			style={
 				{
 					"--sidebar-width": "19rem",

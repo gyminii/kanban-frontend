@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateCardDialog from "./dialogs/create-card-dialog";
+import { useState } from "react";
 
 type Props = {
 	columnId: string;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function NewCardButton({ columnId, nextOrder }: Props) {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 
 	return (
 		<>

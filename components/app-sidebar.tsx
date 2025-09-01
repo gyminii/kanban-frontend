@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { BoardSwitcher } from "./board-switcher";
 import { DatePicker } from "./date-picker";
+import { UserProfile } from "./user-profile";
 
 // This is sample data.
 const data = {
@@ -36,7 +37,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar {...props}>
 			<SidebarHeader className="border-sidebar-border border-b h-16">
-				<BoardSwitcher teams={data.teams} />
+				{/* <BoardSwitcher teams={data.teams} /> */}
+				<React.Suspense fallback={<div>Loading profile...</div>}>
+					<UserProfile />
+				</React.Suspense>
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>

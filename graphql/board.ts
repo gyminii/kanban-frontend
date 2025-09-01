@@ -30,6 +30,7 @@ export const BOARD_FIELDS = gql`
 		isFavorite
 		tags
 		description
+		isArchived
 		color
 		columns {
 			...ColumnFields

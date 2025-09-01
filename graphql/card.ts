@@ -4,6 +4,7 @@ export const CARD_FIELDS = gql`
 	fragment CardFields on Card {
 		__typename
 		id
+		boardId
 		columnId
 		title
 		description
@@ -19,6 +20,7 @@ export const CARD_FIELDS = gql`
 
 export const ADD_CARD = gql`
 	mutation AddCard(
+		$boardId: ID!
 		$columnId: ID!
 		$title: String!
 		$description: String
@@ -28,6 +30,7 @@ export const ADD_CARD = gql`
 		$tags: [String!]
 	) {
 		addCard(
+			boardId: $boardId
 			columnId: $columnId
 			title: $title
 			description: $description
@@ -65,6 +68,25 @@ export const UPDATE_CARD = gql`
 		}
 	}
 	${CARD_FIELDS}
+`;
+
+export const GET_CARDS = gql`
+	query GetCards($userId: String!, $boardId: String) {
+		getCards(userId: $userId, boardId: $boardId) {
+			id
+			title
+			description
+			order
+			assignedTo
+			dueDate
+			completed
+			tags
+			columnId
+			boardId
+			createdAt
+			updatedAt
+		}
+	}
 `;
 
 export const DELETE_CARD = gql`

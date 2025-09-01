@@ -4,6 +4,7 @@ export type CardT = {
 	__typename?: "Card";
 	id: string;
 	columnId: string;
+	boardId: string;
 	title: string;
 	description?: string | null;
 	order: number;

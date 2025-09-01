@@ -93,6 +93,7 @@ export default function CreateCardDialog({
 			__typename: "Card",
 			id: clientid,
 			columnId,
+			boardId,
 			title: form.title.trim(),
 			description: form.description.trim() || null,
 			order: nextOrder,
@@ -109,6 +110,7 @@ export default function CreateCardDialog({
 			await client.mutate<{ addCard: CardT }>({
 				mutation: ADD_CARD,
 				variables: {
+					boardId,
 					columnId,
 					title: optimisticCard.title,
 					description: optimisticCard.description,

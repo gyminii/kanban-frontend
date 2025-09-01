@@ -36,19 +36,17 @@ type UpdateCardPayload = {
 	updateCard: CardT;
 };
 
-type FormState = {
-	title: string;
-	description: string;
-	dueDate?: Date;
-	completed: boolean;
-	tagsInput: string; // comma-separated tags
-};
-
 export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 	const client = useApolloClient();
 	const [submitting, setSubmitting] = React.useState(false);
 
-	const [form, setForm] = React.useState<FormState>(() => ({
+	const [form, setForm] = React.useState<{
+		title: string;
+		description: string;
+		dueDate?: Date;
+		completed: boolean;
+		tagsInput: string;
+	}>(() => ({
 		title: card.title ?? "",
 		description: card.description ?? "",
 		dueDate: card.dueDate ? new Date(card.dueDate) : undefined,
@@ -102,6 +100,7 @@ export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 					updateCard: {
 						__typename: "Card",
 						id: card.id,
+						boardId: card.boardId,
 						columnId: card.columnId,
 						title: form.title,
 						description: form.description || null,

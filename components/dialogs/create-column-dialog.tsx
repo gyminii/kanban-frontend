@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
 import {
 	format,
@@ -44,6 +43,7 @@ import {
 	PopoverTrigger,
 	PopoverContent,
 } from "@/components/ui/popover";
+import { FormEvent, useEffect, useState } from "react";
 
 /** Convert Date -> ISO at 12:00 to avoid tz midnight drift. */
 function toMiddayISO(d?: Date): string | null {
@@ -77,10 +77,10 @@ export default function CreateColumnDialog({
 	nextOrder = 0,
 }: Props) {
 	const client = useApolloClient();
-	const [submitting, setSubmitting] = React.useState(false);
-	const [error, setError] = React.useState<string | null>(null);
+	const [submitting, setSubmitting] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-	const [form, setForm] = React.useState<FormState>({
+	const [form, setForm] = useState<FormState>({
 		title: "",
 		description: "",
 		status: "active",
@@ -100,7 +100,7 @@ export default function CreateColumnDialog({
 		onOpenChange(false);
 	}
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (
 			form.startDate &&
 			form.endDate &&
@@ -112,7 +112,7 @@ export default function CreateColumnDialog({
 		}
 	}, [form.startDate, form.endDate]);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!open) return;
 		function onKey(e: KeyboardEvent) {
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -144,7 +144,7 @@ export default function CreateColumnDialog({
 		setForm((f) => ({ ...f, startDate: start, endDate: end }));
 	}
 
-	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+	async function onSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const title = form.title.trim();
 		if (!title || submitting || error) return;

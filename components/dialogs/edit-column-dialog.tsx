@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
 import { toast } from "sonner";
 import { format, isBefore, isAfter } from "date-fns";
@@ -34,6 +33,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 type Props = {
 	open: boolean;
@@ -69,10 +69,10 @@ export default function EditColumnDialog({
 	column,
 }: Props) {
 	const client = useApolloClient();
-	const [submitting, setSubmitting] = React.useState(false);
-	const [error, setError] = React.useState<string | null>(null);
+	const [submitting, setSubmitting] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-	const [form, setForm] = React.useState<FormState>(() => ({
+	const [form, setForm] = useState<FormState>(() => ({
 		title: column.title ?? "",
 		description: column.description ?? "",
 		status: (column.status as StatusVal) ?? "active",
@@ -80,7 +80,7 @@ export default function EditColumnDialog({
 		endDate: column.endDate ? new Date(column.endDate) : undefined,
 	}));
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!open) return;
 		setForm({
 			title: column.title ?? "",
@@ -91,7 +91,7 @@ export default function EditColumnDialog({
 		});
 	}, [open, column]);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (
 			form.startDate &&
 			form.endDate &&

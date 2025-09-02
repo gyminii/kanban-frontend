@@ -9,5 +9,5 @@ export default async function CreateProjectPage() {
 
 	if (!user) return null;
 
-	return <CreateBoardDialog userId={user.id} />;
+	return <CreateBoardDialog />;
 }

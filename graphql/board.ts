@@ -10,6 +10,9 @@ export const DASHBOARD_BOARDS = gql`
 			ownerId
 			members
 			updatedAt
+			createdAt
+			isFavorite
+			tags
 			columns {
 				...ColumnFields
 			}
@@ -17,6 +20,20 @@ export const DASHBOARD_BOARDS = gql`
 	}
 	${COLUMN_FIELDS}
 	${CARD_FIELDS}
+`;
+
+export const DASHBOARD_BOARD_FIELDS = gql`
+	fragment DashboardBoardFields on Board {
+		id
+		title
+		ownerId
+		members
+		updatedAt
+		columns {
+			...ColumnFields
+		}
+	}
+	${COLUMN_FIELDS}
 `;
 
 export const BOARD_FIELDS = gql`

@@ -48,13 +48,13 @@ export default function TasksSection() {
 	const {
 		data: { user },
 	} = use(userPromise);
-	const userId = user?.id!;
+	const userId = user?.id;
 	const [boards, setBoards] = useState<BoardT[]>([]);
 	const [selectedBoard, setSelectedBoard] = useState<string>("all");
 	const [view, setView] = useState<"cards" | "list">("cards");
 	const [items, setItems] = useState<ItemsT>([]);
 	const [loading, setLoading] = useState<boolean>(true);
-	console.log(selectedBoard);
+
 	useEffect(() => {
 		let mounted = true;
 		(async () => {
@@ -125,225 +125,230 @@ export default function TasksSection() {
 	const count = filtered.length;
 
 	return (
-		<Tabs value={view} onValueChange={(v) => setView(v as typeof view)}>
-			{/* Header */}
-			<div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-				<div className="flex items-center gap-2">
-					<span className="text-sm font-semibold">Tasks</span>
-					<Badge variant="secondary">{loading ? "…" : count}</Badge>
-				</div>
-
-				<div className="flex gap-3 items-center">
-					<Select value={selectedBoard} onValueChange={onBoardChange}>
-						<SelectTrigger className="w-48 h-8 text-xs">
-							<SelectValue placeholder="Filter by board" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All Boards</SelectItem>
-							{boards.map((b) => (
-								<SelectItem key={b.id} value={b.id}>
-									{b.title}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-
-					{/* View toggle */}
-					<TabsList className="h-8">
-						<TabsTrigger value="cards" className="gap-1">
-							<LayoutGrid className="h-3.5 w-3.5" />
-							Cards
-						</TabsTrigger>
-						<TabsTrigger value="list" className="gap-1">
-							<List className="h-3.5 w-3.5" />
-							List
-						</TabsTrigger>
-					</TabsList>
-				</div>
-			</div>
-
-			{/* Content */}
-			<div className="px-3 pb-3 pt-2">
-				{loading ? (
-					<div className="px-8 py-10 text-center text-sm text-muted-foreground">
-						Loading…
+		<section className="rounded-2xl border shadow-md bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
+			<Tabs value={view} onValueChange={(v) => setView(v as typeof view)}>
+				{/* Header */}
+				<div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex items-center gap-2">
+						<span className="text-sm font-semibold">Tasks</span>
+						<Badge variant="secondary">{loading ? "…" : count}</Badge>
 					</div>
-				) : (
-					<>
-						{/* Card view */}
-						<TabsContent value="cards" className="m-0">
-							{count === 0 ? (
-								<EmptyState boardId={selectedBoard} />
-							) : (
-								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-									{filtered.map((t) => (
-										<Link
-											key={t.id}
-											href={`/boards/${t.boardId}`}
-											className={cn(
-												"group rounded-xl border bg-background px-3 py-3 transition-colors",
-												"hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30"
-											)}
-										>
-											<div className="flex items-start justify-between gap-3">
-												<div className="min-w-0">
-													<div
-														className={cn(
-															"text-sm font-medium truncate",
-															t.completed
-																? "text-neutral-500 line-through"
-																: "text-foreground"
-														)}
-														title={t.title}
-													>
-														{t.title}
-													</div>
 
-													<div className="mt-0.5 text-xs text-muted-foreground truncate">
-														{t.boardTitle}
-														{t.description ? ` — ${t.description}` : ""}
-													</div>
+					<div className="flex gap-3 items-center">
+						<Select value={selectedBoard} onValueChange={onBoardChange}>
+							<SelectTrigger className="w-48 h-8 text-xs">
+								<SelectValue placeholder="Filter by board" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Boards</SelectItem>
+								{boards.map((b) => (
+									<SelectItem key={b.id} value={b.id}>
+										{b.title}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 
-													{Array.isArray(
-														(t as unknown as { tags?: string[] }).tags
-													) &&
-													(t as unknown as { tags?: string[] }).tags!.length ? (
-														<div className="mt-2 flex flex-wrap gap-1">
-															{(t as unknown as { tags: string[] }).tags
-																.slice(0, 6)
-																.map((tag) => (
+						{/* View toggle */}
+						<TabsList className="h-8">
+							<TabsTrigger value="cards" className="gap-1">
+								<LayoutGrid className="h-3.5 w-3.5" />
+								Cards
+							</TabsTrigger>
+							<TabsTrigger value="list" className="gap-1">
+								<List className="h-3.5 w-3.5" />
+								List
+							</TabsTrigger>
+						</TabsList>
+					</div>
+				</div>
+
+				{/* Content */}
+				<div className="px-3 pb-3 pt-2">
+					{loading ? (
+						<div className="px-8 py-10 text-center text-sm text-muted-foreground">
+							Loading…
+						</div>
+					) : (
+						<>
+							{/* Card view */}
+							<TabsContent value="cards" className="m-0">
+								{count === 0 ? (
+									<EmptyState boardId={selectedBoard} />
+								) : (
+									<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+										{filtered.map((t) => (
+											<Link
+												key={t.id}
+												href={`/boards/${t.boardId}`}
+												className={cn(
+													"group rounded-xl border bg-background px-3 py-3 transition-colors",
+													"hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30"
+												)}
+											>
+												<div className="flex items-start justify-between gap-3">
+													<div className="min-w-0">
+														<div
+															className={cn(
+																"text-sm font-medium truncate",
+																t.completed
+																	? "text-neutral-500 line-through"
+																	: "text-foreground"
+															)}
+															title={t.title}
+														>
+															{t.title}
+														</div>
+
+														<div className="mt-0.5 text-xs text-muted-foreground truncate">
+															{t.boardTitle}
+															{t.description ? ` — ${t.description}` : ""}
+														</div>
+
+														{Array.isArray(
+															(t as unknown as { tags?: string[] }).tags
+														) &&
+														(t as unknown as { tags?: string[] }).tags!
+															.length ? (
+															<div className="mt-2 flex flex-wrap gap-1">
+																{(t as unknown as { tags: string[] }).tags
+																	.slice(0, 6)
+																	.map((tag) => (
+																		<Badge
+																			key={tag}
+																			variant="outline"
+																			className="h-5 rounded-full"
+																		>
+																			<Tag className="mr-1 h-3 w-3 opacity-70" />
+																			{tag}
+																		</Badge>
+																	))}
+																{(t as unknown as { tags: string[] }).tags
+																	.length > 6 ? (
 																	<Badge
-																		key={tag}
 																		variant="outline"
 																		className="h-5 rounded-full"
 																	>
-																		<Tag className="mr-1 h-3 w-3 opacity-70" />
-																		{tag}
+																		+
+																		{(t as unknown as { tags: string[] }).tags
+																			.length - 6}
 																	</Badge>
-																))}
-															{(t as unknown as { tags: string[] }).tags
-																.length > 6 ? (
-																<Badge
-																	variant="outline"
-																	className="h-5 rounded-full"
-																>
-																	+
-																	{(t as unknown as { tags: string[] }).tags
-																		.length - 6}
-																</Badge>
-															) : null}
-														</div>
-													) : null}
-												</div>
+																) : null}
+															</div>
+														) : null}
+													</div>
 
-												<div className="shrink-0 text-right">
-													<DueBadge
-														completed={!!t.completed}
-														dueDate={t.dueDate ?? null}
-													/>
-													<div className="mt-1 text-[11px] text-muted-foreground">
-														Updated {formatDate(t.updatedAt)}
+													<div className="shrink-0 text-right">
+														<DueBadge
+															completed={!!t.completed}
+															dueDate={t.dueDate ?? null}
+														/>
+														<div className="mt-1 text-[11px] text-muted-foreground">
+															Updated {formatDate(t.updatedAt)}
+														</div>
 													</div>
 												</div>
-											</div>
-										</Link>
-									))}
-								</div>
-							)}
-						</TabsContent>
+											</Link>
+										))}
+									</div>
+								)}
+							</TabsContent>
 
-						{/* List view */}
-						<TabsContent value="list" className="m-0">
-							{count === 0 ? (
-								<EmptyState boardId={selectedBoard} />
-							) : (
-								<div className="overflow-x-auto rounded-xl border">
-									<Table>
-										<TableHeader>
-											<TableRow>
-												<TableHead className="w-[40%]">Task</TableHead>
-												<TableHead>Board</TableHead>
-												<TableHead className="whitespace-nowrap">Due</TableHead>
-												<TableHead className="whitespace-nowrap">
-													Status
-												</TableHead>
-												<TableHead className="whitespace-nowrap">
-													Tags
-												</TableHead>
-												<TableHead className="text-right">Updated</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{filtered.map((t) => {
-												const tags =
-													(t as unknown as { tags?: string[] }).tags ?? [];
-												return (
-													<TableRow
-														key={t.id}
-														className="hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20"
-													>
-														<TableCell className="max-w-[420px]">
-															<Link
-																href={`/boards/${t.boardId}`}
-																className="font-medium hover:underline"
-															>
-																{t.title}
-															</Link>
-															{t.description ? (
-																<div className="line-clamp-1 text-xs text-muted-foreground">
-																	{t.description}
-																</div>
-															) : null}
-														</TableCell>
-														<TableCell className="text-sm text-muted-foreground">
-															{t.boardTitle}
-														</TableCell>
-														<TableCell className="text-sm">
-															<DueBadge
-																inline
-																completed={!!t.completed}
-																dueDate={t.dueDate ?? null}
-															/>
-														</TableCell>
-														<TableCell>
-															{t.completed ? (
-																<Badge
-																	variant="secondary"
-																	className="rounded-full"
+							{/* List view */}
+							<TabsContent value="list" className="m-0">
+								{count === 0 ? (
+									<EmptyState boardId={selectedBoard} />
+								) : (
+									<div className="overflow-x-auto rounded-xl border">
+										<Table>
+											<TableHeader>
+												<TableRow>
+													<TableHead className="w-[40%]">Task</TableHead>
+													<TableHead>Board</TableHead>
+													<TableHead className="whitespace-nowrap">
+														Due
+													</TableHead>
+													<TableHead className="whitespace-nowrap">
+														Status
+													</TableHead>
+													<TableHead className="whitespace-nowrap">
+														Tags
+													</TableHead>
+													<TableHead className="text-right">Updated</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{filtered.map((t) => {
+													const tags =
+														(t as unknown as { tags?: string[] }).tags ?? [];
+													return (
+														<TableRow
+															key={t.id}
+															className="hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20"
+														>
+															<TableCell className="max-w-[420px]">
+																<Link
+																	href={`/boards/${t.boardId}`}
+																	className="font-medium hover:underline"
 																>
-																	Done
-																</Badge>
-															) : (
-																<Badge className="rounded-full bg-indigo-600 text-white">
-																	Open
-																</Badge>
-															)}
-														</TableCell>
-														<TableCell className="text-sm">
-															{tags.length ? (
-																<span className="inline-flex items-center gap-1 text-muted-foreground">
-																	<Tag className="h-3.5 w-3.5" />
-																	{tags.length}
-																</span>
-															) : (
-																"—"
-															)}
-														</TableCell>
-														<TableCell className="text-right text-xs text-muted-foreground">
-															{formatDate(t.updatedAt)}
-														</TableCell>
-													</TableRow>
-												);
-											})}
-										</TableBody>
-									</Table>
-								</div>
-							)}
-						</TabsContent>
-					</>
-				)}
-			</div>
-		</Tabs>
+																	{t.title}
+																</Link>
+																{t.description ? (
+																	<div className="line-clamp-1 text-xs text-muted-foreground">
+																		{t.description}
+																	</div>
+																) : null}
+															</TableCell>
+															<TableCell className="text-sm text-muted-foreground">
+																{t.boardTitle}
+															</TableCell>
+															<TableCell className="text-sm">
+																<DueBadge
+																	inline
+																	completed={!!t.completed}
+																	dueDate={t.dueDate ?? null}
+																/>
+															</TableCell>
+															<TableCell>
+																{t.completed ? (
+																	<Badge
+																		variant="secondary"
+																		className="rounded-full"
+																	>
+																		Done
+																	</Badge>
+																) : (
+																	<Badge className="rounded-full bg-indigo-600 text-white">
+																		Open
+																	</Badge>
+																)}
+															</TableCell>
+															<TableCell className="text-sm">
+																{tags.length ? (
+																	<span className="inline-flex items-center gap-1 text-muted-foreground">
+																		<Tag className="h-3.5 w-3.5" />
+																		{tags.length}
+																	</span>
+																) : (
+																	"—"
+																)}
+															</TableCell>
+															<TableCell className="text-right text-xs text-muted-foreground">
+																{formatDate(t.updatedAt)}
+															</TableCell>
+														</TableRow>
+													);
+												})}
+											</TableBody>
+										</Table>
+									</div>
+								)}
+							</TabsContent>
+						</>
+					)}
+				</div>
+			</Tabs>
+		</section>
 	);
 }
 

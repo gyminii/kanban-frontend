@@ -1,7 +1,6 @@
 // components/kanban/board/board-menu.tsx
 "use client";
 
-import * as React from "react";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -15,10 +14,11 @@ import { Button } from "@/components/ui/button";
 import EditBoardDialog from "../dialogs/edit-board-dialog";
 import DeleteBoardDialog from "../dialogs/delete-board-dialog";
 import { BoardT } from "./types"; // ← use your existing type
+import { useState } from "react";
 
 export default function BoardMenu({ board }: { board: BoardT }) {
-	const [openEdit, setOpenEdit] = React.useState(false);
-	const [openDelete, setOpenDelete] = React.useState(false);
+	const [openEdit, setOpenEdit] = useState(false);
+	const [openDelete, setOpenDelete] = useState(false);
 
 	return (
 		<>

@@ -8,11 +8,9 @@ import {
 } from "@/components/ui/sidebar";
 import { BreadcrumbProvider } from "@/utils/breadcrumbs/breadcrumbs-provider";
 import { useSettings } from "@/utils/settings/provider";
-import * as React from "react";
 import { AppBreadcrumbs } from "../app-breadcrumbs";
 import { AppSidebar } from "../app-sidebar";
 import { ThemeToggle } from "../theme-toggle";
-import { useBoardDnd } from "@/hooks/use-board-dnd";
 
 export default function SidebarProvider({
 	children,
@@ -20,7 +18,7 @@ export default function SidebarProvider({
 	children: React.ReactNode;
 }) {
 	const {
-		settings: { isSidebarOpen, lastBoardId },
+		settings: { isSidebarOpen },
 		update,
 	} = useSettings();
 
@@ -35,8 +33,9 @@ export default function SidebarProvider({
 			}
 		>
 			<AppSidebar />
-			<SidebarInset className="h-dvh flex-col overflow-hidden">
-				<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+			{/* sm:overflow-hidden */}
+			<SidebarInset className="h-full min-h-0 flex-col bg-muted/40">
+				<header className="bg-background flex h-16 sticky top-0 shrink-0 items-center border-b px-4 z-50">
 					<SidebarTrigger className="-ml-1" />
 					<Separator
 						orientation="vertical"

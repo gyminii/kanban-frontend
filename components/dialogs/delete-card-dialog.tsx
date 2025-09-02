@@ -1,8 +1,5 @@
 "use client";
 
-import * as React from "react";
-import { useApolloClient } from "@apollo/client/react";
-import { Button } from "@/components/ui/button";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,13 +10,16 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
-import { AlertTriangle, Clock } from "lucide-react";
-import { DELETE_CARD } from "@/graphql/card";
-import { BOARD_QUERY } from "@/graphql/board";
-import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { CARD_FIELDS, DELETE_CARD } from "@/graphql/card";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/format-date";
+import { Reference } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
+import { AlertTriangle, Clock } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { CardT } from "../kanban/types";
 
 type Props = {
 	open: boolean;
@@ -40,8 +40,7 @@ export default function DeleteCardDialog({
 	dueDate,
 }: Props) {
 	const client = useApolloClient();
-	const { boardId } = useParams<{ boardId: string }>();
-	const [submitting, setSubmitting] = React.useState(false);
+	const [submitting, setSubmitting] = useState(false);
 
 	async function onConfirm(): Promise<void> {
 		if (submitting) return;
@@ -53,12 +52,42 @@ export default function DeleteCardDialog({
 				variables: { cardId },
 				optimisticResponse: { deleteCard: true },
 				update(cache) {
-					const cacheId = cache.identify({ __typename: "Card", id: cardId });
-					if (cacheId) cache.evict({ id: cacheId });
+					// read the card data from the cache using a fragment.
+					const deletedCard = cache.readFragment<CardT>({
+						id: cache.identify({ __typename: "Card", id: cardId }),
+						fragment: CARD_FIELDS,
+						fragmentName: "CardFields",
+					});
+
+					if (!deletedCard) {
+						console.log(
+							"Deleted card not found in cache. Cache update aborted."
+						);
+						return;
+					}
+
+					const columnId = deletedCard.columnId;
+
+					cache.modify({
+						id: cache.identify({ __typename: "Column", id: columnId }),
+						fields: {
+							cards(existingCards = [], { readField }) {
+								const newCards = existingCards.filter(
+									(cardRef: Reference) => readField("id", cardRef) !== cardId
+								);
+
+								return newCards;
+							},
+						},
+					});
+
+					cache.evict({
+						id: cache.identify({ __typename: "Card", id: cardId }),
+					});
 					cache.gc();
+
+					console.log("Card evicted from cache and garbage collected.");
 				},
-				refetchQueries: [{ query: BOARD_QUERY, variables: { boardId } }],
-				awaitRefetchQueries: true,
 			});
 
 			toast.success("Card deleted");

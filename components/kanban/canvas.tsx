@@ -1,6 +1,6 @@
 "use client";
 
-import { DragDropContext, Droppable, type DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Column from "@/components/kanban/column";
 import type { ColumnT } from "@/components/kanban/types";
 import { useBoardDnd } from "@/hooks/use-board-dnd";
@@ -31,8 +31,7 @@ export default function KanbanCanvas() {
 								"overflow-x-auto overflow-y-hidden",
 								// snap & feel
 								"snap-x snap-mandatory scroll-px-4",
-								"px-4 py-4", // inner padding for the board surface
-								// smoother momentum on macOS/iOS
+								"px-4 py-4",
 								"motion-safe:[scroll-behavior:smooth]",
 							].join(" ")}
 						>

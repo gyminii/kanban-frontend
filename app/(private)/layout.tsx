@@ -8,16 +8,17 @@ export default async function Layout({
 	return (
 		<ApolloProvider>
 			<SidebarProvider>
-				<div className="flex flex-1  flex-col gap-4 p-4 pt-0 overflow-hidden">
+				<div className="flex flex-1 min-h-0 flex-col bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
 					{children}
 					<Toaster
 						expand
 						toastOptions={{
 							unstyled: true,
 							classNames: {
-								// Base box
+								// Base box with better contrast
 								toast:
-									"pointer-events-auto font-sans rounded-2xl border bg-card text-foreground shadow-md px-4 py-3 " +
+									"pointer-events-auto font-sans rounded-2xl border border-slate-200 dark:border-slate-800 " +
+									"bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-foreground shadow-lg px-4 py-3 " +
 									"flex items-center gap-3",
 								// Icon + text
 								icon:

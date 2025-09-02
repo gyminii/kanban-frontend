@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import {
 	Clock,
@@ -21,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import EditCardDialog from "../dialogs/edit-card-dialog";
 import DeleteCardDialog from "../dialogs/delete-card-dialog";
+import { useState } from "react";
 
 type Density = "comfy" | "compact";
 
@@ -39,8 +39,8 @@ export default function CardItem({
 	showDescription = true,
 	showUpdatedAt = true,
 }: Props) {
-	const [editOpen, setEditOpen] = React.useState(false);
-	const [deleteOpen, setDeleteOpen] = React.useState(false);
+	const [editOpen, setEditOpen] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	const overdue =
 		card.dueDate && !card.completed && new Date(card.dueDate) < new Date();

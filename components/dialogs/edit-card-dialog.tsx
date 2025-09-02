@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
 import { CalendarIcon, Hash, Tag } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +24,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { FormEvent, useEffect, useState } from "react";
 
 type Props = {
 	open: boolean;
@@ -38,9 +38,9 @@ type UpdateCardPayload = {
 
 export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 	const client = useApolloClient();
-	const [submitting, setSubmitting] = React.useState(false);
+	const [submitting, setSubmitting] = useState(false);
 
-	const [form, setForm] = React.useState<{
+	const [form, setForm] = useState<{
 		title: string;
 		description: string;
 		dueDate?: Date;
@@ -54,7 +54,7 @@ export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 		tagsInput: (card.tags ?? []).join(", "),
 	}));
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!open) return;
 		setForm({
 			title: card.title ?? "",
@@ -69,7 +69,7 @@ export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 		onOpenChange(false);
 	}
 
-	async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+	async function onSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
 		e.preventDefault();
 		if (!form.title.trim() || submitting) return;
 

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
 import { useParams } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
@@ -20,6 +19,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 type Props = {
 	open: boolean;
@@ -39,7 +39,7 @@ export default function DeleteColumnDialog({
 }: Props) {
 	const client = useApolloClient();
 	const { boardId } = useParams<{ boardId: string }>();
-	const [submitting, setSubmitting] = React.useState(false);
+	const [submitting, setSubmitting] = useState(false);
 
 	async function onConfirm(): Promise<void> {
 		if (submitting) return;

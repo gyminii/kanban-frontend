@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -19,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { DELETE_BOARD } from "@/graphql/board";
+import { useState } from "react";
 
 type Props = {
 	open: boolean;
@@ -35,8 +35,7 @@ export default function DeleteBoardDialog({
 }: Props) {
 	const client = useApolloClient();
 	const router = useRouter();
-	const [submitting, setSubmitting] = React.useState(false);
-
+	const [submitting, setSubmitting] = useState(false);
 	async function onConfirm() {
 		if (submitting) return;
 		setSubmitting(true);
@@ -46,8 +45,8 @@ export default function DeleteBoardDialog({
 				variables: { boardId },
 				optimisticResponse: { deleteBoard: true },
 				update(cache) {
-					const id = cache.identify({ __typename: "Board", id: boardId });
-					if (id) cache.evict({ id });
+					const cacheId = cache.identify({ __typename: "Board", id: boardId });
+					if (cacheId) cache.evict({ id: cacheId });
 					cache.gc();
 				},
 			});
@@ -58,6 +57,7 @@ export default function DeleteBoardDialog({
 		} finally {
 			setSubmitting(false);
 			onOpenChange(false);
+			router.push("/dashboard");
 		}
 	}
 

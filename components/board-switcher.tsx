@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { ChevronsUpDown, Plus } from "lucide-react";
 
 import {
@@ -18,18 +17,19 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { ElementType, useState } from "react";
 
 export function BoardSwitcher({
 	teams,
 }: {
 	teams: {
 		name: string;
-		logo: React.ElementType;
+		logo: ElementType;
 		plan: string;
 	}[];
 }) {
 	const { isMobile } = useSidebar();
-	const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+	const [activeTeam, setActiveTeam] = useState(teams[0]);
 
 	if (!activeTeam) {
 		return null;

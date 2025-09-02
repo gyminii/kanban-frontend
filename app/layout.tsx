@@ -32,7 +32,7 @@ export default async function RootLayout({
 					disableTransitionOnChange
 				>
 					<SettingsProvider initial={initialSettings}>
-						<main className="min-h-screen">{children}</main>
+						<main className="h-full">{children}</main>
 					</SettingsProvider>
 				</ThemeProvider>
 			</body>

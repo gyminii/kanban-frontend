@@ -1,8 +1,6 @@
 "use client";
 
-import * as React from "react";
 import { useApolloClient } from "@apollo/client/react";
-import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import {
 	Palette,
@@ -28,8 +26,14 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 
-import { UPDATE_BOARD, BOARD_QUERY } from "@/graphql/board";
+import {
+	UPDATE_BOARD,
+	BOARD_FIELDS,
+	DASHBOARD_BOARD_FIELDS,
+} from "@/graphql/board";
 import type { BoardT } from "../kanban/types";
+import { useEffect, useState } from "react";
+import { COLUMN_FIELDS } from "@/graphql/column";
 
 type Props = {
 	open: boolean;
@@ -56,10 +60,9 @@ type FormState = {
 
 export default function EditBoardDialog({ open, onOpenChange, board }: Props) {
 	const client = useApolloClient();
-	const { boardId } = useParams<{ boardId: string }>();
-	const [submitting, setSubmitting] = React.useState(false);
-
-	const [form, setForm] = React.useState<FormState>({
+	const [submitting, setSubmitting] = useState(false);
+	const boardId = board.id;
+	const [form, setForm] = useState<FormState>({
 		title: board.title ?? "",
 		description: board.description ?? "",
 		color: board.color ?? "",
@@ -67,8 +70,7 @@ export default function EditBoardDialog({ open, onOpenChange, board }: Props) {
 		isArchived: !!board.isArchived,
 		tagsInput: (board.tags ?? []).join(", "),
 	});
-
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!open) return;
 		setForm({
 			title: board.title ?? "",
@@ -94,10 +96,10 @@ export default function EditBoardDialog({ open, onOpenChange, board }: Props) {
 				.map((t) => t.trim())
 				.filter(Boolean);
 
-			await client.mutate({
+			await client.mutate<{ updateBoard: BoardT }>({
 				mutation: UPDATE_BOARD,
 				variables: {
-					boardId: board.id,
+					boardId: boardId,
 					title: form.title || null,
 					description: form.description || null,
 					color: form.color || null,
@@ -108,7 +110,7 @@ export default function EditBoardDialog({ open, onOpenChange, board }: Props) {
 				optimisticResponse: {
 					updateBoard: {
 						__typename: "Board",
-						id: board.id,
+						id: boardId,
 						title: form.title,
 						description: form.description,
 						ownerId: board.ownerId,
@@ -122,7 +124,50 @@ export default function EditBoardDialog({ open, onOpenChange, board }: Props) {
 						columns: board.columns,
 					},
 				},
-				refetchQueries: [{ query: BOARD_QUERY, variables: { boardId } }],
+				update(cache, { data }) {
+					console.log("--- Update function for UPDATE_BOARD started ---");
+					const updatedBoard = data?.updateBoard;
+
+					if (!updatedBoard) {
+						console.warn(
+							"Update function: No board data returned from mutation."
+						);
+						return;
+					}
+
+					console.log(
+						"Writing to cache for BOARD_FIELDS fragment:",
+						updatedBoard
+					);
+					cache.writeFragment({
+						id: cache.identify({ __typename: "Board", id: updatedBoard.id }),
+						fragment: BOARD_FIELDS,
+						fragmentName: "BoardFields",
+						data: updatedBoard,
+					});
+					console.log(
+						"Writing to cache for DASHBOARD_BOARD_FIELDS fragment:",
+						updatedBoard
+					);
+					cache.writeFragment({
+						id: cache.identify({ __typename: "Board", id: updatedBoard.id }),
+						fragment: DASHBOARD_BOARD_FIELDS,
+						fragmentName: "DashboardBoardFields",
+						data: {
+							...updatedBoard,
+							columns: updatedBoard.columns.map((col) =>
+								cache.writeFragment({
+									data: col,
+									fragment: COLUMN_FIELDS,
+									fragmentName: "ColumnFields",
+								})
+							),
+						},
+					});
+
+					console.log("Board cache updated successfully.");
+					console.log("--- Update function for UPDATE_BOARD finished ---");
+				},
 			});
 
 			toast.success("Board updated");

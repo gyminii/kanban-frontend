@@ -2,7 +2,6 @@
 
 import { useApolloClient } from "@apollo/client/react";
 import { CalendarIcon, Hash, Tag } from "lucide-react";
-import * as React from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import type { CardT } from "@/components/kanban/types";
@@ -24,9 +23,10 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { BOARD_QUERY } from "@/graphql/board";
-import { ADD_CARD } from "@/graphql/card";
+import { ADD_CARD, CARD_FIELDS } from "@/graphql/card";
 import { useParams } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { Reference } from "@apollo/client";
 
 type Props = {
 	open: boolean;
@@ -41,7 +41,7 @@ type FormState = {
 	assignedTo: string;
 	dueDate?: Date;
 	completed: boolean;
-	tagsInput: string; // comma-separated tags
+	tagsInput: string;
 };
 
 export default function CreateCardDialog({
@@ -52,8 +52,8 @@ export default function CreateCardDialog({
 }: Props) {
 	const client = useApolloClient();
 	const { boardId } = useParams<{ boardId: string }>();
-	const [submitting, setSubmitting] = React.useState(false);
-	const [form, setForm] = React.useState<FormState>({
+	const [submitting, setSubmitting] = useState(false);
+	const [form, setForm] = useState<FormState>({
 		title: "",
 		description: "",
 		assignedTo: "",
@@ -74,7 +74,7 @@ export default function CreateCardDialog({
 		onOpenChange(false);
 	}
 
-	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+	async function onSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		if (!form.title.trim() || submitting) return;
 
@@ -120,8 +120,50 @@ export default function CreateCardDialog({
 					tags: parsedTags,
 				},
 				optimisticResponse: { addCard: optimisticCard },
-				refetchQueries: [{ query: BOARD_QUERY, variables: { boardId } }],
-				awaitRefetchQueries: true,
+				update(cache, { data }) {
+					const newCard = data?.addCard;
+
+					if (!newCard) {
+						console.log("No new card data received. Cache not updated.");
+						return;
+					}
+
+					console.log(
+						`Adding new card with ID ${newCard.id} to cache for column ID ${newCard.columnId}`
+					);
+
+					cache.modify({
+						id: cache.identify({ __typename: "Column", id: newCard.columnId }),
+						fields: {
+							cards(existingCards = []) {
+								const newCardRef = cache.writeFragment({
+									data: newCard,
+									fragment: CARD_FIELDS,
+									fragmentName: "CardFields",
+								});
+
+								if (
+									existingCards.some(
+										(ref: Reference) => ref.__ref === newCardRef?.__ref
+									)
+								) {
+									console.log(
+										"Optimistic card already exists. No new reference added."
+									);
+									return existingCards;
+								}
+
+								console.log(
+									`Successfully added new card reference to the list. Current count: ${
+										existingCards.length + 1
+									}`
+								);
+
+								return [...existingCards, newCardRef];
+							},
+						},
+					});
+				},
 			});
 
 			resetAndClose();

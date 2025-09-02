@@ -1,11 +1,11 @@
 "use client";
 
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import CreateColumnDialog from "@/components/dialogs/create-column-dialog";
+import { useState } from "react";
 
 export function NewColumnButton({ boardId }: { boardId: string }) {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 	return (
 		<>
 			<Button

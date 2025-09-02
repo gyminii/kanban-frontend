@@ -1,13 +1,17 @@
 "use client";
 
-import * as React from "react";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { useApolloClient } from "@apollo/client/react";
 import { LayoutDashboard, Sparkles } from "lucide-react";
 
-import { CREATE_BOARD } from "@/graphql/board";
-import { ADD_COLUMN } from "@/graphql/column";
+import {
+	BOARD_FIELDS,
+	BOARDS_QUERY,
+	CREATE_BOARD,
+	DASHBOARD_BOARD_FIELDS,
+} from "@/graphql/board";
+import { ADD_COLUMN, COLUMN_FIELDS } from "@/graphql/column";
 
 import {
 	Dialog,
@@ -23,17 +27,19 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { BoardT, ColumnT } from "../kanban/types";
+import { createClient } from "@/utils/supabase/client";
+import { FormEvent, use, useRef, useState } from "react";
 
-type Props = { userId: string };
-
-export default function CreateBoardDialog({ userId }: Props) {
+const supabase = createClient();
+const userPromise = supabase.auth.getUser();
+export default function CreateBoardDialog() {
 	const router = useRouter();
 	const client = useApolloClient();
 
-	const [submitting, setSubmitting] = React.useState(false);
-	const nameRef = React.useRef<HTMLInputElement>(null);
+	const [submitting, setSubmitting] = useState(false);
+	const nameRef = useRef<HTMLInputElement>(null);
 
-	const [form, setForm] = React.useState({
+	const [form, setForm] = useState({
 		description: "",
 		color: "#4f46e5",
 		isFavorite: false,
@@ -41,7 +47,13 @@ export default function CreateBoardDialog({ userId }: Props) {
 		tags: "",
 		createDefaults: true,
 	});
-
+	const {
+		data: { user },
+	} = use(userPromise);
+	if (!user) {
+		return null;
+	}
+	const userId = user.id;
 	// quick helper to update state
 	const updateForm = <K extends keyof typeof form>(
 		key: K,
@@ -53,7 +65,7 @@ export default function CreateBoardDialog({ userId }: Props) {
 		if (nameRef.current) nameRef.current.value = name;
 	};
 
-	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+	async function onSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		if (submitting) return;
 
@@ -70,6 +82,7 @@ export default function CreateBoardDialog({ userId }: Props) {
 			.filter(Boolean);
 
 		setSubmitting(true);
+
 		try {
 			const now = new Date().toISOString();
 			const clientId = `board-${uuidv4()}`;
@@ -103,36 +116,78 @@ export default function CreateBoardDialog({ userId }: Props) {
 				},
 				optimisticResponse: { createBoard: optimisticBoard },
 				update(cache, { data }) {
-					const real = data?.createBoard;
-					if (!real) return;
+					console.log("--- Cache update function started ---");
+					const newBoard = data?.createBoard;
+					if (!newBoard) return;
+
+					// 1. Read and update the list of all boards from the cache.
+					const allBoardsQuery = cache.readQuery<{ boards: BoardT[] } | null>({
+						query: BOARDS_QUERY,
+					});
+
+					if (allBoardsQuery) {
+						const newBoardRef = cache.writeFragment({
+							data: newBoard,
+							fragment: BOARD_FIELDS,
+							fragmentName: "BoardFields",
+						});
+
+						const newBoardsList = [...allBoardsQuery.boards, newBoardRef];
+
+						cache.writeQuery({
+							query: BOARDS_QUERY,
+							data: { boards: newBoardsList },
+						});
+						console.log(
+							"ALL_BOARDS_QUERY updated with new board:",
+							newBoardRef
+						);
+						console.log("Updated list of ALL_BOARDS_QUERY:", newBoardsList);
+					}
+					console.log("Attempting to modify DASHBOARD_BOARDS cache...");
 					cache.modify({
-						id: cache.identify({ __typename: "Board", id: optimisticBoard.id }),
 						fields: {
-							id() {
-								return real.id;
+							boards(existingBoardRefs = []) {
+								console.log(
+									"Existing dashboard board refs:",
+									existingBoardRefs
+								);
+								const dashboardBoardRef = cache.writeFragment({
+									data: newBoard,
+									fragment: DASHBOARD_BOARD_FIELDS,
+									fragmentName: "DashboardBoardFields",
+								});
+								const updatedList = [...existingBoardRefs, dashboardBoardRef];
+								console.log(
+									"New dashboard board refs after addition:",
+									updatedList
+								);
+								return updatedList;
 							},
 						},
+						broadcast: true,
 					});
 				},
 			});
 
 			const newBoardId = data?.createBoard?.id;
 			if (!newBoardId) {
+				console.error("Failed to create board ID.");
 				router.back();
 				return;
 			}
 
+			// Handling Default columns
 			if (form.createDefaults) {
 				for (const [index, colTitle] of [
 					"Backlog",
 					"In Progress",
 					"Done",
 				].entries()) {
-					const clientColId = `column-${uuidv4()}`;
 					const stamp = new Date().toISOString();
 					const optimisticColumn: ColumnT = {
 						__typename: "Column",
-						id: clientColId,
+						id: `column-${uuidv4()}`,
 						boardId: newBoardId,
 						title: colTitle,
 						order: index,
@@ -144,24 +199,41 @@ export default function CreateBoardDialog({ userId }: Props) {
 						updatedAt: stamp,
 						cards: [],
 					};
-
-					await client.mutate({
+					await client.mutate<{ addColumn: ColumnT }>({
 						mutation: ADD_COLUMN,
 						variables: { boardId: newBoardId, title: colTitle },
 						optimisticResponse: { addColumn: optimisticColumn },
+						update(cache, { data }) {
+							const newColumn = data?.addColumn;
+							if (!newColumn) return;
+
+							// Use cache.modify to add the new column to the board's column list.
+							cache.modify({
+								id: cache.identify({ __typename: "Board", id: newBoardId }),
+								fields: {
+									columns(existingColumnRefs = []) {
+										const newColumnRef = cache.writeFragment({
+											data: newColumn,
+											fragment: COLUMN_FIELDS,
+											fragmentName: "ColumnFields",
+										});
+										return [...existingColumnRefs, newColumnRef];
+									},
+								},
+							});
+						},
 					});
 				}
 			}
-
+			console.log("Board created successfully.");
 			router.replace(`/boards/${newBoardId}`);
 		} catch (err) {
-			console.error(err);
+			console.error("Error creating board:", err);
 			router.back();
 		} finally {
 			setSubmitting(false);
 		}
 	}
-
 	const tagPreview = form.tags
 		.split(",")
 		.map((t) => t.trim())

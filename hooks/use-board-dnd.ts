@@ -23,6 +23,7 @@ export function useBoardDnd() {
 
 	const { data } = useSuspenseQuery<QueryData>(BOARD_QUERY, {
 		variables: { boardId },
+		fetchPolicy: "cache-and-network",
 	});
 
 	const board = data.board;

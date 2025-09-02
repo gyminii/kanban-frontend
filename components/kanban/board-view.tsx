@@ -54,7 +54,7 @@ export default function BoardView() {
 	const client = useApolloClient();
 	const { update } = useSettings();
 
-	const totalCards = board.columns.reduce((n, c) => n + c.cards.length, 0);
+	const totalCards = board?.columns.reduce((n, c) => n + c.cards.length, 0);
 	const accent = board.color || "#4f46e5";
 	const tags = (board.tags ?? []).slice(0, 10);
 

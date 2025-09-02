@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 	const { name, email, message } = json;
 
 	const { error } = await resend.emails.send({
-		from: process.env.MAIL_FROM ?? "Tyra Contact <noreply@your-domain.com>",
+		from: process.env.MAIL_FROM ?? "Kanban Contact <noreply@your-domain.com>",
 		to: process.env.MAIL_TO ?? "tyler7888@gmail.com",
 		subject: `Kanban Contact — ${name}`,
 		text: `Name: ${name}\nEmail: ${email}\n\n${message}`,

@@ -131,7 +131,7 @@ export default function ContactPage() {
 									</div>
 									<div>
 										<CardTitle className="leading-tight">
-											Tyra — Dynamic Kanban
+											Kanban — Dynamic board
 										</CardTitle>
 										<p className="text-xs text-muted-foreground">
 											Organize work. Ship faster. Stay in flow.
@@ -142,7 +142,7 @@ export default function ContactPage() {
 
 							<CardContent className="space-y-6 flex-1">
 								<p className="text-sm text-muted-foreground">
-									Tyra is a lightweight, real-time Kanban built with Next.js,
+									Kanban is a lightweight, real-time board built with Next.js,
 									Apollo, and a Python/Strawberry back end. It&apos;s tuned for
 									speed, clarity, and a clean indigo aesthetic across dark &amp;
 									light themes.

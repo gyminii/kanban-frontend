@@ -13,7 +13,11 @@ export function GoogleButton() {
 			await supabase.auth.signInWithOAuth({
 				provider: "google",
 				options: {
-					redirectTo: "http://localhost:3000/auth/callback",
+					redirectTo: `${
+						process.env.NODE_ENV === "development"
+							? "http://localhost:3000/"
+							: process.env.NEXT_PUBLIC_SITE_URL
+					}auth/callback`,
 				},
 			});
 		} finally {

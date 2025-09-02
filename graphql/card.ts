@@ -1,22 +1,5 @@
 import { gql } from "@apollo/client";
-
-export const CARD_FIELDS = gql`
-	fragment CardFields on Card {
-		__typename
-		id
-		boardId
-		columnId
-		title
-		description
-		order
-		assignedTo
-		dueDate
-		completed
-		tags
-		createdAt
-		updatedAt
-	}
-`;
+import { CARD_FIELDS } from "./fragments";
 
 export const ADD_CARD = gql`
 	mutation AddCard(

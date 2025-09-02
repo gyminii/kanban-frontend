@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
-import { COLUMN_FIELDS } from "./column";
-import { CARD_FIELDS } from "./card";
+
+import { BOARD_FIELDS, CARD_FIELDS, COLUMN_FIELDS } from "./fragments";
 
 export const DASHBOARD_BOARDS = gql`
 	query DashboardBoards($userId: String!) {
@@ -20,40 +20,6 @@ export const DASHBOARD_BOARDS = gql`
 	}
 	${COLUMN_FIELDS}
 	${CARD_FIELDS}
-`;
-
-export const DASHBOARD_BOARD_FIELDS = gql`
-	fragment DashboardBoardFields on Board {
-		id
-		title
-		ownerId
-		members
-		updatedAt
-		columns {
-			...ColumnFields
-		}
-	}
-	${COLUMN_FIELDS}
-`;
-
-export const BOARD_FIELDS = gql`
-	fragment BoardFields on Board {
-		id
-		title
-		ownerId
-		members
-		createdAt
-		updatedAt
-		isFavorite
-		tags
-		description
-		isArchived
-		color
-		columns {
-			...ColumnFields
-		}
-	}
-	${COLUMN_FIELDS}
 `;
 
 export const BOARD_QUERY = gql`

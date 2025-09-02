@@ -104,17 +104,6 @@ export default async function DashboardPage() {
 			acc + board.columns.reduce((colAcc, col) => colAcc + col.cards.length, 0),
 		0
 	);
-	const completedTasks = boards.reduce(
-		(acc, board) =>
-			acc +
-			board.columns.reduce(
-				(colAcc, col) =>
-					colAcc + col.cards.filter((card) => card.completed).length,
-				0
-			),
-		0
-	);
-	console.log(completedTasks);
 
 	return (
 		<div className="min-h-screen px-4 py-8 sm:px-6 lg:px-10 ">

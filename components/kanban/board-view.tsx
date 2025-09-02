@@ -100,12 +100,11 @@ export default function BoardView() {
 			toast.error("Failed to update color");
 		}
 	}
-
 	return (
 		<div className="flex h-full min-h-0 min-w-0 flex-col p-4">
 			{/* Header card */}
 			<div
-				className="mb-4 rounded-2xl border bg-white/90 shadow-sm backdrop-blur dark:bg-neutral-950/70"
+				className="mb-4 rounded-2xl border bg-white/90 shadow-sm backdrop-blur dark:bg-neutral-950/70 overflow-hidden"
 				style={{
 					background:
 						`linear-gradient(180deg, ${accent}10, transparent 55%),` +
@@ -114,7 +113,7 @@ export default function BoardView() {
 				}}
 			>
 				<div
-					className={cn("h-1.5 w-full", bgClass(accent))}
+					className="h-1.5 w-full"
 					style={{
 						background: `linear-gradient(90deg, ${accent}, ${accent}AA 40%, transparent 100%)`,
 					}}
@@ -219,7 +218,7 @@ export default function BoardView() {
 								</div>
 							) : (
 								<div className="text-xs text-neutral-400">
-									Add tags in “Edit board” to help filter/search.
+									Add tags in &quot;Edit board&quot; to help filter/search.
 								</div>
 							)}
 						</div>

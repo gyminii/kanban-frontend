@@ -77,7 +77,7 @@ export default function CardItem({
 					ref={provided.innerRef}
 					{...provided.draggableProps}
 					className={cn(
-						"group relative rounded-2xl border bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm",
+						"group relative rounded-2xl border bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm overflow-hidden",
 						"shadow-sm transition-all hover:shadow-md",
 						"ring-1 ring-transparent hover:ring-indigo-200/60 dark:hover:ring-indigo-500/30",
 						pad,
@@ -87,7 +87,7 @@ export default function CardItem({
 					{/* top gradient strip */}
 					<div
 						className={cn(
-							"absolute inset-x-0 top-0 h-1.5 rounded-t-2xl",
+							"absolute inset-x-0 top-0 h-1.5",
 							statusTone === "green" &&
 								"bg-gradient-to-r from-emerald-400/70 to-emerald-500/60",
 							statusTone === "red" &&

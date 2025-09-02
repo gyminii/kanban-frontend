@@ -5,13 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useApolloClient } from "@apollo/client/react";
 import { LayoutDashboard, Sparkles } from "lucide-react";
 
-import {
-	BOARD_FIELDS,
-	BOARDS_QUERY,
-	CREATE_BOARD,
-	DASHBOARD_BOARD_FIELDS,
-} from "@/graphql/board";
-import { ADD_COLUMN, COLUMN_FIELDS } from "@/graphql/column";
+import { BOARDS_QUERY, CREATE_BOARD } from "@/graphql/board";
+import { ADD_COLUMN } from "@/graphql/column";
 
 import {
 	Dialog,
@@ -29,6 +24,11 @@ import { Badge } from "@/components/ui/badge";
 import type { BoardT, ColumnT } from "../kanban/types";
 import { createClient } from "@/utils/supabase/client";
 import { FormEvent, use, useRef, useState } from "react";
+import {
+	BOARD_FIELDS,
+	COLUMN_FIELDS,
+	DASHBOARD_BOARD_FIELDS,
+} from "@/graphql/fragments";
 
 const supabase = createClient();
 const userPromise = supabase.auth.getUser();

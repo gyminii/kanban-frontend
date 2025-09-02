@@ -26,14 +26,15 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 
-import {
-	UPDATE_BOARD,
-	BOARD_FIELDS,
-	DASHBOARD_BOARD_FIELDS,
-} from "@/graphql/board";
+import { UPDATE_BOARD } from "@/graphql/board";
+
 import type { BoardT } from "../kanban/types";
 import { useEffect, useState } from "react";
-import { COLUMN_FIELDS } from "@/graphql/column";
+import {
+	DASHBOARD_BOARD_FIELDS,
+	COLUMN_FIELDS,
+	BOARD_FIELDS,
+} from "@/graphql/fragments";
 
 type Props = {
 	open: boolean;

@@ -1,25 +1,5 @@
 import { gql } from "@apollo/client";
-import { CARD_FIELDS } from "./card";
-
-export const COLUMN_FIELDS = gql`
-	fragment ColumnFields on Column {
-		__typename
-		id
-		boardId
-		title
-		order
-		description
-		startDate
-		endDate
-		status
-		createdAt
-		updatedAt
-		cards {
-			...CardFields
-		}
-	}
-	${CARD_FIELDS}
-`;
+import { COLUMN_FIELDS } from "./fragments";
 
 export const COLUMN_QUERY = gql`
 	query Column($columnId: ID!) {

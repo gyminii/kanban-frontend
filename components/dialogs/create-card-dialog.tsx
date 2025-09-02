@@ -23,10 +23,11 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ADD_CARD, CARD_FIELDS } from "@/graphql/card";
+import { ADD_CARD } from "@/graphql/card";
 import { useParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Reference } from "@apollo/client";
+import { CARD_FIELDS } from "@/graphql/fragments";
 
 type Props = {
 	open: boolean;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
 	Cloud,
 	MoveHorizontal,
 	CheckCircle2,
+	ArrowLeft,
 } from "lucide-react";
 import {
 	Accordion,
@@ -25,23 +26,99 @@ import {
 	AccordionTrigger,
 	AccordionContent,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
+
+const supabase = createClient();
+const userPromise = supabase.auth.getUser();
 export default function ContactPage() {
 	const [loading, setLoading] = useState(false);
-
+	const router = useRouter();
+	const {
+		data: { user },
+	} = use(userPromise);
+	const email = user?.email;
+	const name = user?.user_metadata?.full_name || user?.user_metadata?.name;
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		if (loading) return;
+
+		const form = e.currentTarget;
+		const fd = new FormData(form);
+		const getStr = (k: string): string =>
+			typeof fd.get(k) === "string" ? (fd.get(k) as string) : "";
+
+		const payload = {
+			name: getStr("name"),
+			email: getStr("email"),
+			message: getStr("message"),
+		};
+
 		setLoading(true);
-		// TODO: POST to /api/contact (Resend / Nodemailer / Supabase Function)
-		await new Promise((r) => setTimeout(r, 900));
-		setLoading(false);
-		alert("Message sent! I'll get back to you soon.");
+
+		try {
+			toast.promise(
+				(async () => {
+					const res = await fetch("/api/contact", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(payload),
+					});
+
+					type ContactOk = { ok: true };
+					type ContactErr = { ok: false; error?: string };
+					type ContactResponse = ContactOk | ContactErr;
+
+					const data: ContactResponse = await res.json();
+
+					if (!res.ok || !data.ok) {
+						// Throw to trigger the `error` toast below
+						const msg =
+							(!data.ok && data.error) ||
+							res.statusText ||
+							"Failed to send message.";
+						throw new Error(msg);
+					}
+
+					// Side-effect on success (allowed inside the promise)
+					form.reset();
+
+					// Data returned here is passed to the `success` renderer
+					return { name: payload.name };
+				})(),
+				{
+					loading: "Sending...",
+					success: ({ name }) =>
+						`${
+							name ? `${name}, y` : "Y"
+						}our message was sent! I’ll get back to you soon.`,
+					error: (err) =>
+						err instanceof Error
+							? err.message
+							: "Something went wrong. Please try again.",
+				}
+			);
+		} finally {
+			setLoading(false);
+		}
 	}
 
 	return (
 		<div className="relative min-h-screen overflow-hidden">
-			{/* Main container using flexbox for centering */}
+			<div className="absolute top-4 left-4 z-10">
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => router.back()}
+					className="flex items-center gap-2 text-muted-foreground hover:text-indigo-500"
+				>
+					<ArrowLeft className="h-4 w-4" />
+					Back
+				</Button>
+			</div>
 			<div className="relative flex min-h-screen items-center justify-center p-6">
 				<div className="w-full max-w-6xl">
 					<div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-stretch">
@@ -213,6 +290,7 @@ export default function ContactPage() {
 										name="name"
 										placeholder="Your Name"
 										required
+										defaultValue={name}
 									/>
 									<Input
 										className="w-full"
@@ -220,6 +298,7 @@ export default function ContactPage() {
 										name="email"
 										placeholder="Your Email"
 										required
+										defaultValue={email}
 									/>
 									<Textarea
 										className="w-full flex-1 resize-none"

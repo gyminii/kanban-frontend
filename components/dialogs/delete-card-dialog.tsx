@@ -11,7 +11,8 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { CARD_FIELDS, DELETE_CARD } from "@/graphql/card";
+import { DELETE_CARD } from "@/graphql/card";
+
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/format-date";
 import { Reference } from "@apollo/client";
@@ -20,15 +21,14 @@ import { AlertTriangle, Clock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CardT } from "../kanban/types";
+import { CARD_FIELDS } from "@/graphql/fragments";
 
 type Props = {
 	open: boolean;
 	onOpenChange: (v: boolean) => void;
 	cardId: string;
 	columnId: string;
-	/** Optional, for a nicer confirmation line */
 	title?: string;
-	/** Optional, to show a hint */
 	dueDate?: string | null;
 };
 

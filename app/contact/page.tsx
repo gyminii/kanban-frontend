@@ -75,7 +75,6 @@ export default function ContactPage() {
 					const data: ContactResponse = await res.json();
 
 					if (!res.ok || !data.ok) {
-						// Throw to trigger the `error` toast below
 						const msg =
 							(!data.ok && data.error) ||
 							res.statusText ||
@@ -83,10 +82,8 @@ export default function ContactPage() {
 						throw new Error(msg);
 					}
 
-					// Side-effect on success (allowed inside the promise)
 					form.reset();
 
-					// Data returned here is passed to the `success` renderer
 					return { name: payload.name };
 				})(),
 				{

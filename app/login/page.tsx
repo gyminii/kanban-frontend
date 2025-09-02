@@ -1,6 +1,5 @@
 import { GoogleButton } from "@/components/google-signin";
 import { LayoutGrid } from "lucide-react";
-import Link from "next/link";
 
 export default function LoginPage() {
 	return (

@@ -48,18 +48,18 @@ export async function updateSession(request: NextRequest) {
 	// 	url.pathname = "/login";
 	// 	return NextResponse.redirect(url);
 	// }
-	if (!user && pathname === "/") {
-		const url = request.nextUrl.clone();
-		url.pathname = "/login";
-		return NextResponse.redirect(url);
-	}
-
-	if (user && pathname === "/login") {
-		const next = request.nextUrl.searchParams.get("redirect") || "/";
-		const url = request.nextUrl.clone();
-		url.pathname = next;
-		url.search = "";
-		return NextResponse.redirect(url);
+	if (user) {
+		if (pathname === "/login") {
+			const url = request.nextUrl.clone();
+			url.pathname = "/";
+			return NextResponse.redirect(url);
+		}
+	} else {
+		if (pathname !== "/login") {
+			const url = request.nextUrl.clone();
+			url.pathname = "/login";
+			return NextResponse.redirect(url);
+		}
 	}
 
 	// IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

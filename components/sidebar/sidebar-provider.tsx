@@ -34,7 +34,7 @@ export default function SidebarProvider({
 		>
 			<AppSidebar />
 			{/* sm:overflow-hidden */}
-			<SidebarInset className="h-full min-h-0 flex-col bg-muted/40">
+			<SidebarInset className="h-full min-h-0 flex-col bg-muted/40 overflow-hidden">
 				<header className="bg-background flex h-16 sticky top-0 shrink-0 items-center border-b px-4 z-50">
 					<SidebarTrigger className="-ml-1" />
 					<Separator

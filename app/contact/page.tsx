@@ -1,35 +1,35 @@
 "use client";
 
-import { use, useState } from "react";
-import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-	HelpCircle,
-	Mail,
-	Github,
-	Linkedin,
-	LayoutGrid,
-	Zap,
-	Shield,
-	Cloud,
-	MoveHorizontal,
-	CheckCircle2,
-	ArrowLeft,
-} from "lucide-react";
 import {
 	Accordion,
+	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-	AccordionContent,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import {
+	ArrowLeft,
+	CheckCircle2,
+	Cloud,
+	Github,
+	HelpCircle,
+	LayoutDashboard,
+	Linkedin,
+	Mail,
+	MoveHorizontal,
+	Shield,
+	Zap,
+} from "lucide-react";
+import Link from "next/link";
+import { use, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const supabase = createClient();
@@ -124,7 +124,7 @@ export default function ContactPage() {
 							<CardHeader className="space-y-2 pb-4">
 								<div className="flex items-center gap-2">
 									<div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-500 text-white">
-										<LayoutGrid className="h-5 w-5" />
+										<LayoutDashboard className="h-5 w-5" />
 									</div>
 									<div>
 										<CardTitle className="leading-tight">

@@ -1,11 +1,10 @@
 "use client";
 
 import { useApolloClient } from "@apollo/client/react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AlertTriangle, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,6 +15,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 import { DELETE_BOARD } from "@/graphql/board";
 import { useState } from "react";
@@ -43,21 +43,43 @@ export default function DeleteBoardDialog({
 			await client.mutate<{ deleteBoard: boolean }>({
 				mutation: DELETE_BOARD,
 				variables: { boardId },
-				optimisticResponse: { deleteBoard: true },
-				update(cache) {
-					const cacheId = cache.identify({ __typename: "Board", id: boardId });
-					if (cacheId) cache.evict({ id: cacheId });
-					cache.gc();
-				},
+				// optimisticResponse: { deleteBoard: true },
+				// update(cache) {
+				// 	const deletedBoard = cache.readFragment<BoardT>({
+				// 		id: cache.identify({ __typename: "Board", id: boardId }),
+				// 		fragment: BOARD_FIELDS,
+				// 		fragmentName: "BoardFields",
+				// 	});
+				// 	if (!deletedBoard) {
+				// 		console.log(
+				// 			"Deleted board not found in cache. Cache update aborted."
+				// 		);
+				// 		return;
+				// 	}
+				// 	cache.modify({
+				// 		fields: {
+				// 			boards(existingBoards = [], { readField }) {
+				// 				return existingBoards.filter(
+				// 					(boardRef: Reference) => readField("id", boardRef) !== boardId
+				// 				);
+				// 			},
+				// 		},
+				// 	});
+
+				// 	cache.evict({
+				// 		id: cache.identify({ __typename: "Board", id: boardId }),
+				// 	});
+				// 	cache.gc();
+				// 	console.log("Board evicted from cache and garbage collected.");
+				// },
 			});
 			toast.success("Board deleted");
-			router.push("/dashboard");
+			onOpenChange(false);
+			router.replace("/dashboard");
 		} catch {
 			toast.error("Failed to delete board");
 		} finally {
 			setSubmitting(false);
-			onOpenChange(false);
-			router.push("/dashboard");
 		}
 	}
 

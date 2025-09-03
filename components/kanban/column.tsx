@@ -92,7 +92,6 @@ export default function Column({
 				<div
 					ref={dragProvided.innerRef}
 					{...dragProvided.draggableProps}
-					// FIX: non-flexing fixed width + scroll-snap; forward style from DnD
 					className="flex-none w-80 basis-80 h-full snap-start flex flex-col"
 					style={dragProvided.draggableProps.style}
 				>

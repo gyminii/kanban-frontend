@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 
-import { DASHBOARD_BOARDS } from "@/graphql/board";
-import { GET_CARDS } from "@/graphql/card";
+import type { BoardT, CardT } from "@/components/kanban/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -15,19 +20,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {
-	Select,
-	SelectTrigger,
-	SelectContent,
-	SelectItem,
-	SelectValue,
-} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DASHBOARD_BOARDS } from "@/graphql/board";
+import { GET_CARDS } from "@/graphql/card";
 import { cn } from "@/lib/utils";
-import { CalendarDays, LayoutGrid, List, Tag } from "lucide-react";
-import type { CardT, BoardT } from "@/components/kanban/types";
-import { useApolloClient } from "@apollo/client/react";
-import { use, useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useApolloClient } from "@apollo/client/react";
+import { CalendarDays, LayoutDashboard, List, Tag } from "lucide-react";
+import { use, useCallback, useEffect, useState } from "react";
 
 function formatDate(d?: string | null) {
 	return d ? new Date(d).toLocaleDateString() : "—";
@@ -152,7 +152,7 @@ export default function TasksSection() {
 						{/* View toggle */}
 						<TabsList className="h-8">
 							<TabsTrigger value="cards" className="gap-1">
-								<LayoutGrid className="h-3.5 w-3.5" />
+								<LayoutDashboard className="h-3.5 w-3.5" />
 								Cards
 							</TabsTrigger>
 							<TabsTrigger value="list" className="gap-1">
@@ -357,7 +357,7 @@ function EmptyState({ boardId }: { boardId: string }) {
 	return (
 		<div className="px-8 py-12 text-center text-sm text-muted-foreground">
 			<div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border">
-				<LayoutGrid className="h-5 w-5 opacity-70" />
+				<LayoutDashboard className="h-5 w-5 opacity-70" />
 			</div>
 
 			{isAll ? (

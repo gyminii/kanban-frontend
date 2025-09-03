@@ -52,7 +52,6 @@ export default function DeleteCardDialog({
 				variables: { cardId },
 				optimisticResponse: { deleteCard: true },
 				update(cache) {
-					// read the card data from the cache using a fragment.
 					const deletedCard = cache.readFragment<CardT>({
 						id: cache.identify({ __typename: "Card", id: cardId }),
 						fragment: CARD_FIELDS,

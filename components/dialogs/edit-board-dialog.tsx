@@ -1,22 +1,18 @@
 "use client";
 
 import { useApolloClient } from "@apollo/client/react";
-import { toast } from "sonner";
 import {
-	Palette,
-	Star,
 	Archive,
-	Hash,
-	Tag,
 	Check,
+	Hash,
+	Palette,
 	Sparkles,
+	Star,
+	Tag,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
 	Dialog,
 	DialogContent,
@@ -25,16 +21,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 import { UPDATE_BOARD } from "@/graphql/board";
 
-import type { BoardT } from "../kanban/types";
+import { BOARD_FIELDS, DASHBOARD_BOARD_FIELDS } from "@/graphql/fragments";
 import { useEffect, useState } from "react";
-import {
-	DASHBOARD_BOARD_FIELDS,
-	COLUMN_FIELDS,
-	BOARD_FIELDS,
-} from "@/graphql/fragments";
+import type { BoardT } from "../kanban/types";
 
 type Props = {
 	open: boolean;
@@ -154,16 +150,7 @@ export default function EditBoardDialog({ open, onOpenChange, board }: Props) {
 						id: cache.identify({ __typename: "Board", id: updatedBoard.id }),
 						fragment: DASHBOARD_BOARD_FIELDS,
 						fragmentName: "DashboardBoardFields",
-						data: {
-							...updatedBoard,
-							columns: updatedBoard.columns.map((col) =>
-								cache.writeFragment({
-									data: col,
-									fragment: COLUMN_FIELDS,
-									fragmentName: "ColumnFields",
-								})
-							),
-						},
+						data: updatedBoard,
 					});
 
 					console.log("Board cache updated successfully.");

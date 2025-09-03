@@ -1,5 +1,5 @@
 import { GoogleButton } from "@/components/google-signin";
-import { LayoutGrid } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 export default function LoginPage() {
 	return (
@@ -7,7 +7,7 @@ export default function LoginPage() {
 			<article className="w-full max-w-md rounded-2xl border border-indigo-200 bg-white/90 p-6 shadow-xl backdrop-blur-md dark:border-indigo-800 dark:bg-indigo-950/70">
 				<header className="mb-6 text-center">
 					<div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600/10 ring-1 ring-indigo-300/30 dark:bg-indigo-400/10 dark:ring-indigo-700/40">
-						<LayoutGrid className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+						<LayoutDashboard className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
 					</div>
 					<h1 className="text-2xl font-semibold text-indigo-900 dark:text-indigo-100">
 						Welcome to Kanban

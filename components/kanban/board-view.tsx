@@ -3,22 +3,22 @@
 import KanbanCanvas from "@/components/kanban/canvas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useBoardDnd } from "@/hooks/use-board-dnd";
-import { formatDate } from "@/utils/format-date";
-import { NewColumnButton } from "../new-column-button";
-import BoardMenu from "./board-menu";
-import { Star, Archive, Hash, Paintbrush } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useApolloClient } from "@apollo/client/react";
-import { UPDATE_BOARD, BOARD_QUERY } from "@/graphql/board";
-import { toast } from "sonner";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { BOARD_QUERY, UPDATE_BOARD } from "@/graphql/board";
+import { useBoardDnd } from "@/hooks/use-board-dnd";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/format-date";
 import { useSettings } from "@/utils/settings/provider";
+import { useApolloClient } from "@apollo/client/react";
+import { Archive, Hash, Paintbrush, Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { NewColumnButton } from "../new-column-button";
+import BoardMenu from "./board-menu";
 
 const SUGGESTED_COLORS = [
 	"#4f46e5", // indigo
@@ -53,11 +53,9 @@ export default function BoardView() {
 	const { board } = useBoardDnd();
 	const client = useApolloClient();
 	const { update } = useSettings();
-
-	const totalCards = board?.columns.reduce((n, c) => n + c.cards.length, 0);
-	const accent = board.color || "#4f46e5";
-	const tags = (board.tags ?? []).slice(0, 10);
-
+	const totalCards = board?.columns.reduce((n, c) => n + c?.cards?.length, 0);
+	const accent = board?.color || "#4f46e5";
+	const tags = (board?.tags ?? []).slice(0, 10);
 	useEffect(() => {
 		if (board?.id) {
 			void update({ lastBoardId: board.id });
@@ -101,7 +99,7 @@ export default function BoardView() {
 		}
 	}
 	return (
-		<div className="flex h-full min-h-0 min-w-0 flex-col p-4">
+		<div className="flex-1 overflow-hidden  h-full min-h-0 min-w-0 flex-col p-4">
 			{/* Header card */}
 			<div
 				className="mb-4 rounded-2xl border bg-white/90 shadow-sm backdrop-blur dark:bg-neutral-950/70 overflow-hidden"
@@ -131,7 +129,7 @@ export default function BoardView() {
 										accentClass(accent)
 									)}
 								>
-									{board.title}
+									{board?.title}
 								</h1>
 
 								{/* Favorite chip (clickable) */}
@@ -139,31 +137,31 @@ export default function BoardView() {
 									type="button"
 									onClick={toggleFavorite}
 									aria-label={
-										board.isFavorite ? "Unfavorite board" : "Favorite board"
+										board?.isFavorite ? "Unfavorite board" : "Favorite board"
 									}
-									aria-pressed={board.isFavorite}
+									aria-pressed={board?.isFavorite}
 									className="focus-visible:outline-none"
 								>
 									<Badge
 										className={cn(
 											"gap-1 select-none",
-											board.isFavorite
+											board?.isFavorite
 												? "bg-amber-500/95 text-white hover:bg-amber-500"
 												: "border-amber-300 text-amber-600 hover:bg-amber-50 dark:text-amber-400"
 										)}
-										variant={board.isFavorite ? "default" : "outline"}
+										variant={board?.isFavorite ? "default" : "outline"}
 									>
 										<Star
 											className={cn(
 												"h-3.5 w-3.5",
-												board.isFavorite && "fill-current"
+												board?.isFavorite && "fill-current"
 											)}
 										/>
 										Favorite
 									</Badge>
 								</button>
 
-								{board.isArchived ? (
+								{board?.isArchived ? (
 									<Badge
 										variant="outline"
 										className="gap-1 text-neutral-700 dark:text-neutral-200"
@@ -174,9 +172,9 @@ export default function BoardView() {
 								) : null}
 							</div>
 
-							{board.description ? (
+							{board?.description ? (
 								<p className="mt-1 text-sm leading-6 text-neutral-700 dark:text-neutral-300/90">
-									{board.description}
+									{board?.description}
 								</p>
 							) : null}
 						</div>
@@ -184,7 +182,7 @@ export default function BoardView() {
 						{/* actions */}
 						<div className="flex items-center gap-2">
 							<ColorPickerButton color={accent} onPick={changeColor} />
-							<NewColumnButton boardId={board.id} />
+							<NewColumnButton boardId={board?.id} />
 							<BoardMenu board={board} />
 						</div>
 					</div>
@@ -192,9 +190,12 @@ export default function BoardView() {
 					{/* meta + tags */}
 					<div className="relative z-10 mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-							<MetaBadge label="Columns" value={String(board.columns.length)} />
+							<MetaBadge
+								label="Columns"
+								value={String(board?.columns.length)}
+							/>
 							<MetaBadge label="Cards" value={String(totalCards)} />
-							<MetaBadge label="Updated" value={formatDate(board.updatedAt)} />
+							<MetaBadge label="Updated" value={formatDate(board?.updatedAt)} />
 						</div>
 
 						<div className="min-w-0">
@@ -210,9 +211,9 @@ export default function BoardView() {
 											{t}
 										</span>
 									))}
-									{(board.tags?.length ?? 0) > tags.length ? (
+									{(board?.tags?.length ?? 0) > tags.length ? (
 										<span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-800">
-											+{(board.tags?.length ?? 0) - tags.length} more
+											+{(board?.tags?.length ?? 0) - tags.length} more
 										</span>
 									) : null}
 								</div>

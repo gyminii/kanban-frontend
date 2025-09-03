@@ -26,7 +26,7 @@ export default function KanbanCanvas() {
 							{...dropProvided.droppableProps}
 							className={[
 								// layout
-								"flex h-full min-w-0 gap-4",
+								"flex h-[50rem] min-w-0 gap-4",
 								// scrolling
 								"overflow-x-auto overflow-y-hidden",
 								// snap & feel

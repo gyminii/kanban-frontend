@@ -18,17 +18,34 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { DASHBOARD_BOARDS } from "@/graphql/board";
 import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@apollo/client/react";
-import { use, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DeleteBoardDialog from "../dialogs/delete-board-dialog";
 import EditBoardDialog from "../dialogs/edit-board-dialog";
 
-const supabase = createClient();
-const UserPromise = supabase.auth.getUser();
+type SupabaseUser = { id: string } | null;
 
 export function BoardsList() {
-	const {
-		data: { user },
-	} = use(UserPromise);
+	const supabase = createClient();
+	const [user, setUser] = useState<SupabaseUser>(null);
+	const [authLoading, setAuthLoading] = useState(true);
+
+	useEffect(() => {
+		let mounted = true;
+		(async () => {
+			try {
+				const { data, error } = await supabase.auth.getUser();
+				if (mounted) {
+					setUser(error ? null : data.user ?? null);
+				}
+			} finally {
+				if (mounted) setAuthLoading(false);
+			}
+		})();
+		return () => {
+			mounted = false;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const [deleteOpen, setDeleteOpen] = useState(false);
 	const [deleteInfo, setDeleteInfo] = useState<{
@@ -39,12 +56,13 @@ export function BoardsList() {
 	const [editOpen, setEditOpen] = useState(false);
 	const [editBoard, setEditBoard] = useState<BoardT | null>(null);
 
+	// --- data ---
 	const { data, loading, error } = useQuery<{ boards: BoardT[] }>(
 		DASHBOARD_BOARDS,
 		{
 			variables: { userId: user?.id },
 			fetchPolicy: "cache-and-network",
-			skip: !user,
+			skip: !user, // wait until we know user
 		}
 	);
 
@@ -58,8 +76,44 @@ export function BoardsList() {
 		[boards]
 	);
 
-	// Handle loading and error states for both the user and the query
-	const isLoading = !user || loading;
+	const isLoading = authLoading || (!user && !error) || loading;
+
+	function CreateProjectButton() {
+		const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
+			if (isLoading) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		};
+
+		return (
+			<Button
+				size="sm"
+				variant="outline"
+				asChild
+				className="h-7 gap-1 rounded-full border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-950/40"
+				title="Create project"
+			>
+				<Link
+					href="/create-project"
+					aria-disabled={isLoading}
+					tabIndex={isLoading ? -1 : 0}
+					onClick={handleClick}
+					onMouseDown={(e) => {
+						// prevent focus on disabled
+						if (isLoading) e.preventDefault();
+					}}
+					className={cn(
+						"inline-flex items-center",
+						isLoading && "pointer-events-none opacity-60"
+					)}
+				>
+					<Plus className="h-4 w-4" />
+					New
+				</Link>
+			</Button>
+		);
+	}
 
 	if (isLoading) {
 		return (
@@ -68,15 +122,7 @@ export function BoardsList() {
 					<div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
 						Projects
 					</div>
-					<Button
-						size="sm"
-						variant="outline"
-						disabled
-						className="h-7 gap-1 rounded-full border-indigo-200 text-indigo-700 dark:border-indigo-900 dark:text-indigo-300"
-					>
-						<Plus className="h-4 w-4" />
-						New
-					</Button>
+					<CreateProjectButton />
 				</div>
 				<div className="px-3 py-6 text-center text-xs text-muted-foreground">
 					Loading projects...
@@ -93,15 +139,7 @@ export function BoardsList() {
 					<div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
 						Projects
 					</div>
-					<Button
-						size="sm"
-						variant="outline"
-						disabled
-						className="h-7 gap-1 rounded-full border-indigo-200 text-indigo-700 dark:border-indigo-900 dark:text-indigo-300"
-					>
-						<Plus className="h-4 w-4" />
-						New
-					</Button>
+					<CreateProjectButton />
 				</div>
 				<div className="px-3 py-6 text-center text-xs text-rose-500">
 					Failed to load projects.
@@ -117,18 +155,7 @@ export function BoardsList() {
 				<div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
 					Projects
 				</div>
-				<Button
-					size="sm"
-					variant="outline"
-					asChild
-					className="h-7 gap-1 rounded-full border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-950/40"
-					title="Create project"
-				>
-					<Link href="/create-project">
-						<Plus className="h-4 w-4" />
-						New
-					</Link>
-				</Button>
+				<CreateProjectButton />
 			</div>
 
 			{/* List */}
@@ -140,7 +167,7 @@ export function BoardsList() {
 						</li>
 					) : (
 						sorted.map((b) => {
-							const color = b.color || "#6366F1"; // fallback to indigo-500
+							const color = b.color || "#6366F1";
 							const cardCount =
 								b?.columns?.reduce((n, c) => n + (c?.cards?.length ?? 0), 0) ??
 								0;
@@ -245,7 +272,7 @@ export function BoardsList() {
 				</ul>
 			</ScrollArea>
 
-			{/* --- dialogs --- */}
+			{/* dialogs */}
 			{deleteInfo && (
 				<DeleteBoardDialog
 					open={deleteOpen}

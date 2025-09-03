@@ -47,7 +47,6 @@ export default async function DashboardPage() {
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, 20);
 
-	console.log(boards);
 	// Due soon (next 7 days) — Tasks & Columns (from boards tree)
 	const now = new Date();
 	const in7 = new Date(now.getTime() + 7 * 86400000);

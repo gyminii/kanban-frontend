@@ -23,7 +23,6 @@ export default async function BoardPage({
 		const {
 			data: { user },
 		} = await supabase.auth.getUser();
-		console.log(data);
 		if (!user) redirect("/login");
 		if (!data?.board) redirect("/dashboard");
 

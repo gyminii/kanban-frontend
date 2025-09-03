@@ -48,7 +48,6 @@ export async function updateSession(request: NextRequest) {
 	// 	url.pathname = "/login";
 	// 	return NextResponse.redirect(url);
 	// }
-	console.log("Is User authenticated?: ", user);
 	if (!user && pathname === "/") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/login";

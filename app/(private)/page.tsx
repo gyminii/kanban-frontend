@@ -15,7 +15,7 @@ export default async function Page() {
 	const { data } = await client.query<{ boards: { id: string }[] }>({
 		query: BOARDS_QUERY,
 		variables: { userId: user.id },
-		fetchPolicy: "no-cache",
+		fetchPolicy: "network-only",
 	});
 	if (!data?.boards || data.boards.length === 0) {
 		redirect("/create-project");

@@ -207,7 +207,6 @@ export default function CreateBoardDialog() {
 							const newColumn = data?.addColumn;
 							if (!newColumn) return;
 
-							// Use cache.modify to add the new column to the board's column list.
 							cache.modify({
 								id: cache.identify({ __typename: "Board", id: newBoardId }),
 								fields: {

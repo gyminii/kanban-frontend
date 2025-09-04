@@ -7,7 +7,12 @@ export function DatePicker() {
 			<SidebarGroupContent>
 				<Calendar
 					mode="range"
-					className="w-full [&_[role=gridcell].bg-accent]:bg-sidebar-primary [&_[role=gridcell].bg-accent]:text-sidebar-primary-foreground [&_[role=gridcell]]:w-[38px]"
+					className="w-full 
+						[&_[role=gridcell].bg-accent]:bg-indigo-500  
+						[&_[role=gridcell].bg-accent]:text-indigo-50 
+   						[&_[role=gridcell]]:w-[38px]
+							rounded-xl
+  				"
 				/>
 			</SidebarGroupContent>
 		</SidebarGroup>

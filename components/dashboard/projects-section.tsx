@@ -10,7 +10,7 @@ export default function ProjectsSection({
 	recentBoards: BoardT[];
 }) {
 	return (
-		<section className="rounded-2xl border shadow-md bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
+		<section className="rounded-2xl border shadow-md overflow-hidden max-w-full bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
 			<div className="flex items-center justify-between px-4 py-3 border-b">
 				<div className="flex items-center gap-2">
 					<span className="text-sm font-semibold">Projects</span>
@@ -33,9 +33,11 @@ export default function ProjectsSection({
 							<Link
 								key={b.id}
 								href={`/boards/${b.id}`}
-								className="group rounded-xl border px-3 py-2 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 transition-colors"
+								className="group rounded-xl border px-3 py-2 transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 overflow-hidden"
 							>
-								<div className="flex items-center justify-between gap-2">
+								{/* Grid prevents push/overflow */}
+								<div className="grid grid-cols-[1fr_auto] items-start gap-3">
+									{/* Left: title/meta */}
 									<div className="min-w-0">
 										<div className="font-medium truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300">
 											{b.title}
@@ -43,9 +45,11 @@ export default function ProjectsSection({
 										<div className="mt-0.5 text-xs text-muted-foreground">
 											Updated: {formatDate(b.updatedAt)}
 										</div>
+
 										{b.tags?.length ? (
-											<div className="mt-1 flex flex-wrap gap-1">
-												{b.tags.slice(0, 6).map((t) => (
+											// Wrap so tags never get cut off
+											<div className="mt-1 flex flex-wrap gap-1 pr-1">
+												{b.tags.slice(0, 12).map((t) => (
 													<Badge
 														key={t}
 														variant="outline"
@@ -57,11 +61,16 @@ export default function ProjectsSection({
 											</div>
 										) : null}
 									</div>
-									<div className="shrink-0 flex items-center gap-2">
-										<Badge variant="outline" className="rounded-full">
+
+									{/* Right: stack stats top-to-bottom, smaller pills */}
+									<div className="flex flex-col items-end gap-1 shrink-0">
+										<Badge
+											variant="outline"
+											className="rounded-full whitespace-nowrap text-[11px] h-6 px-2 py-0"
+										>
 											Columns {b.columns.length}
 										</Badge>
-										<Badge className="rounded-full bg-indigo-600 text-white">
+										<Badge className="rounded-full whitespace-nowrap bg-indigo-600 text-white text-[11px] h-6 px-2 py-0">
 											Cards {cardCount}
 										</Badge>
 									</div>

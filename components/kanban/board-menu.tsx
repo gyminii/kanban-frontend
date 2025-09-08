@@ -1,4 +1,3 @@
-// components/kanban/board/board-menu.tsx
 "use client";
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";

@@ -1,4 +1,3 @@
-// Apollo client for server components
 import { HttpLink } from "@apollo/client";
 import {
 	registerApolloClient,

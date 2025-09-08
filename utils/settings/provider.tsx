@@ -31,12 +31,9 @@ export default function SettingsProvider({
 		setSettings((prev) => ({ ...prev, ...partial }));
 		try {
 			await serverSetSettings(partial);
-		} catch {
-			// no-op (keep UI state even if cookie write failed)
-		}
+		} catch {}
 	}, []);
 
-	// Apply dark/light class
 	useEffect(() => {
 		const root = document.documentElement;
 		if (settings.theme === "dark") {

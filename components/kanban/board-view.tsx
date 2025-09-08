@@ -56,6 +56,7 @@ export default function BoardView() {
 	const totalCards = board?.columns.reduce((n, c) => n + c?.cards?.length, 0);
 	const accent = board?.color || "#4f46e5";
 	const tags = (board?.tags ?? []).slice(0, 10);
+
 	useEffect(() => {
 		if (board?.id) {
 			void update({ lastBoardId: board.id });

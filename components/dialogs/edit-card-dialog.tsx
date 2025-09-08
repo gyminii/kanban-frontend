@@ -115,11 +115,14 @@ export default function EditCardDialog({ open, onOpenChange, card }: Props) {
 				},
 				update(cache, { data }) {
 					const next = data?.updateCard;
-					const entityId = cache.identify({ __typename: "Card", id: card.id });
-					if (!entityId) return;
+					const cardEntityId = cache.identify({
+						__typename: "Card",
+						id: card.id,
+					});
+					if (!cardEntityId) return;
 
 					cache.modify({
-						id: entityId,
+						id: cardEntityId,
 						fields: {
 							title: () => (next ? next.title : form.title),
 							description: () =>

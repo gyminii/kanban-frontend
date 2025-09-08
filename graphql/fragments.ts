@@ -10,6 +10,7 @@ export const CARD_FIELDS = gql`
 		assignedTo
 		dueDate
 		completed
+		columnId
 		tags
 	}
 `;

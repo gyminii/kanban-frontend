@@ -41,14 +41,17 @@ function daysUntil(date: Date) {
 }
 
 type ItemsT = (CardT & { boardId: string; boardTitle: string })[];
+
 const supabase = createClient();
 const userPromise = supabase.auth.getUser();
+
 export default function TasksSection() {
 	const client = useApolloClient();
 	const {
 		data: { user },
 	} = use(userPromise);
 	const userId = user?.id;
+
 	const [boards, setBoards] = useState<BoardT[]>([]);
 	const [selectedBoard, setSelectedBoard] = useState<string>("all");
 	const [view, setView] = useState<"cards" | "list">("cards");
@@ -171,26 +174,33 @@ export default function TasksSection() {
 						</div>
 					) : (
 						<>
-							{/* Card view */}
+							{/* Card view: show all content; Updated pinned bottom-right */}
 							<TabsContent value="cards" className="m-0">
 								{count === 0 ? (
 									<EmptyState boardId={selectedBoard} />
 								) : (
-									<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-										{filtered.map((t) => (
-											<Link
-												key={t.id}
-												href={`/boards/${t.boardId}`}
-												className={cn(
-													"group rounded-xl border bg-background px-3 py-3 transition-colors",
-													"hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30"
-												)}
-											>
-												<div className="flex items-start justify-between gap-3">
-													<div className="min-w-0">
+									<div className="columns-1 sm:columns-2 xl:columns-3 gap-3 [column-fill:balance]">
+										{filtered.map((t) => {
+											return (
+												<Link
+													key={t.id}
+													href={`/boards/${t.boardId}`}
+													className={cn(
+														"mb-3 block break-inside-avoid rounded-xl border bg-background px-3 py-3 transition-colors",
+														"hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30"
+													)}
+												>
+													<article className="flex flex-col">
+														<div className="mb-1 flex items-center justify-between gap-2">
+															<DueBadge
+																completed={!!t.completed}
+																dueDate={t.dueDate ?? null}
+															/>
+														</div>
+
 														<div
 															className={cn(
-																"text-sm font-medium truncate",
+																"text-sm font-medium whitespace-normal break-words",
 																t.completed
 																	? "text-neutral-500 line-through"
 																	: "text-foreground"
@@ -200,19 +210,18 @@ export default function TasksSection() {
 															{t.title}
 														</div>
 
-														<div className="mt-0.5 text-xs text-muted-foreground truncate">
+														{/* Board + description (wraps) */}
+														<div className="mt-0.5 text-xs text-muted-foreground whitespace-normal break-words">
 															{t.boardTitle}
 															{t.description ? ` — ${t.description}` : ""}
 														</div>
 
-														{Array.isArray(
-															(t as unknown as { tags?: string[] }).tags
-														) &&
-														(t as unknown as { tags?: string[] }).tags!
-															.length ? (
+														{/* Tags (wrap) */}
+														{Array.isArray((t as { tags?: string[] }).tags) &&
+														(t as { tags?: string[] }).tags!.length ? (
 															<div className="mt-2 flex flex-wrap gap-1">
-																{(t as unknown as { tags: string[] }).tags
-																	.slice(0, 6)
+																{(t as { tags: string[] }).tags
+																	.slice(0, 16)
 																	.map((tag) => (
 																		<Badge
 																			key={tag}
@@ -223,38 +232,31 @@ export default function TasksSection() {
 																			{tag}
 																		</Badge>
 																	))}
-																{(t as unknown as { tags: string[] }).tags
-																	.length > 6 ? (
+																{(t as { tags: string[] }).tags.length > 16 ? (
 																	<Badge
 																		variant="outline"
 																		className="h-5 rounded-full"
 																	>
 																		+
-																		{(t as unknown as { tags: string[] }).tags
-																			.length - 6}
+																		{(t as { tags: string[] }).tags.length - 16}
 																	</Badge>
 																) : null}
 															</div>
 														) : null}
-													</div>
 
-													<div className="shrink-0 text-right">
-														<DueBadge
-															completed={!!t.completed}
-															dueDate={t.dueDate ?? null}
-														/>
-														<div className="mt-1 text-[11px] text-muted-foreground">
+														{/* Footer: always bottom-right */}
+														<div className="mt-2 ml-auto text-[11px] text-muted-foreground">
 															Updated {formatDate(t.updatedAt)}
 														</div>
-													</div>
-												</div>
-											</Link>
-										))}
+													</article>
+												</Link>
+											);
+										})}
 									</div>
 								)}
 							</TabsContent>
 
-							{/* List view */}
+							{/* List view (unchanged) */}
 							<TabsContent value="list" className="m-0">
 								{count === 0 ? (
 									<EmptyState boardId={selectedBoard} />

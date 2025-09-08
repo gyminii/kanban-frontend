@@ -13,6 +13,7 @@ export const DASHBOARD_BOARDS = gql`
 			createdAt
 			isFavorite
 			tags
+			color
 			columns {
 				...ColumnFields
 			}

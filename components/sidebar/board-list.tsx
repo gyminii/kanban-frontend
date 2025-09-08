@@ -2,7 +2,7 @@
 
 import type { BoardT } from "@/components/kanban/types";
 import { cn } from "@/lib/utils";
-import { Folder, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { LayoutGrid, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,24 @@ import EditBoardDialog from "../dialogs/edit-board-dialog";
 
 type SupabaseUser = { id: string } | null;
 
+/** Convert hex like #6366F1 to rgba(...) with given alpha (0..1). */
+function hexToRgba(hex: string, alpha = 0.12) {
+	const h = hex.replace("#", "");
+	const bigint = parseInt(
+		h.length === 3
+			? h
+					.split("")
+					.map((c) => c + c)
+					.join("")
+			: h,
+		16
+	);
+	const r = (bigint >> 16) & 255;
+	const g = (bigint >> 8) & 255;
+	const b = bigint & 255;
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export function BoardsList() {
 	const supabase = createClient();
 	const [user, setUser] = useState<SupabaseUser>(null);
@@ -34,9 +52,7 @@ export function BoardsList() {
 		(async () => {
 			try {
 				const { data, error } = await supabase.auth.getUser();
-				if (mounted) {
-					setUser(error ? null : data.user ?? null);
-				}
+				if (mounted) setUser(error ? null : data.user ?? null);
 			} finally {
 				if (mounted) setAuthLoading(false);
 			}
@@ -172,99 +188,123 @@ export function BoardsList() {
 								b?.columns?.reduce((n, c) => n + (c?.cards?.length ?? 0), 0) ??
 								0;
 
+							const backgroundTint = hexToRgba(color, 0.1); // soft bg
+							const hoverTint = hexToRgba(color, 0.16); // hover bg
+							const borderTint = hexToRgba(color, 0.28); // border
+							console.log(color, b);
 							return (
-								<li
-									key={b.id}
-									className={cn(
-										"group flex items-center justify-between gap-2 rounded-xl border px-3 py-2",
-										"bg-card hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30",
-										"transition-colors"
-									)}
-								>
-									<Link
-										href={`/boards/${b.id}`}
-										className="flex min-w-0 items-center gap-3"
-										title={b.title}
+								<li key={b.id}>
+									<div
+										className={cn(
+											"group grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 rounded-xl border px-3 py-2 transition-colors"
+										)}
+										style={{
+											background: backgroundTint,
+											borderColor: borderTint,
+										}}
 									>
-										{/* Colored dot + fallback icon */}
-										<span
-											className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
-											style={{
-												borderColor: `${color}40`,
-												background:
-													"linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0))",
-											}}
+										{/* Left: icon + title (clickable) */}
+										<Link
+											href={`/boards/${b.id}`}
+											className="col-start-1 row-start-1 flex min-w-0 items-center gap-3"
+											title={b.title}
 										>
 											<span
-												className="absolute h-2.5 w-2.5 rounded-full"
-												style={{ backgroundColor: color }}
-											/>
-											<Folder className="h-3.5 w-3.5 opacity-40" />
-										</span>
-
-										<div className="min-w-0">
-											<div className="truncate text-sm font-medium">
-												{b.title}
-											</div>
-											<div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
-												<span>{b?.columns?.length ?? 0} cols</span>
-												<span>•</span>
-												<span>{cardCount} cards</span>
-											</div>
-										</div>
-									</Link>
-
-									{/* Actions */}
-									<div className="flex shrink-0 items-center gap-2">
-										{b.tags?.length ? (
-											<Badge
-												variant="outline"
-												className="h-6 rounded-full text-[10px]"
+												className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+												style={{
+													borderColor: borderTint,
+													background: hexToRgba(color, 0.14),
+												}}
 											>
-												{b.tags[0]}
-												{b.tags.length > 1 ? ` +${b.tags.length - 1}` : ""}
-											</Badge>
-										) : null}
+												<LayoutGrid className="h-3.5 w-3.5 opacity-70" />
+											</span>
 
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-													title="More"
-												>
-													<MoreHorizontal className="h-4 w-4" />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end" className="w-40">
-												<DropdownMenuItem asChild>
-													<Link href={`/boards/${b.id}`}>View</Link>
-												</DropdownMenuItem>
-												<DropdownMenuItem
-													onSelect={() => {
-														setEditBoard(b);
-														setEditOpen(true);
-													}}
-													className="flex items-center gap-2"
-												>
-													<Pencil className="h-4 w-4" />
-													Edit
-												</DropdownMenuItem>
-												<DropdownMenuSeparator />
-												<DropdownMenuItem
-													className="text-rose-600"
-													onSelect={() => {
-														setDeleteInfo({ id: b.id, title: b.title });
-														setDeleteOpen(true);
-													}}
-												>
-													<Trash2 className="mr-2 h-4 w-4" />
-													Delete
-												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
+											<div className="min-w-0">
+												<div className="truncate text-sm font-medium">
+													{b.title}
+												</div>
+												<div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+													<span>{b?.columns?.length ?? 0} cols</span>
+													<span>•</span>
+													<span>{cardCount} cards</span>
+												</div>
+											</div>
+										</Link>
+
+										{/* Right: actions */}
+										<div className="col-start-2 row-start-1 flex shrink-0 items-center">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+														title="More"
+													>
+														<MoreHorizontal className="h-4 w-4" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end" className="w-44">
+													<DropdownMenuItem asChild>
+														<Link href={`/boards/${b.id}`}>View</Link>
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														onSelect={() => {
+															setEditBoard(b);
+															setEditOpen(true);
+														}}
+														className="flex items-center gap-2"
+													>
+														<Pencil className="h-4 w-4" />
+														Edit
+													</DropdownMenuItem>
+													<DropdownMenuSeparator />
+													<DropdownMenuItem
+														className="text-rose-600"
+														onSelect={() => {
+															setDeleteInfo({ id: b.id, title: b.title });
+															setDeleteOpen(true);
+														}}
+													>
+														<Trash2 className="mr-2 h-4 w-4" />
+														Delete
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</div>
+
+										{/* Bottom row: tags (so the menu never gets squeezed) */}
+										{(b.tags?.length ?? 0) > 0 && (
+											<div className="col-span-2 row-start-2 -mb-0.5 flex flex-wrap gap-1.5">
+												{b.tags!.slice(0, 3).map((t) => (
+													<Badge
+														key={t}
+														variant="outline"
+														className="h-5 rounded-full px-2 text-[10px]"
+														style={{ borderColor: borderTint }}
+													>
+														{t}
+													</Badge>
+												))}
+												{b.tags!.length > 3 && (
+													<Badge
+														variant="outline"
+														className="h-5 rounded-full px-2 text-[10px]"
+														style={{ borderColor: borderTint }}
+													>
+														+{b.tags!.length - 3}
+													</Badge>
+												)}
+											</div>
+										)}
 									</div>
+
+									<style jsx>{`
+										/* Subtle hover using inline CSS var fallback */
+										li > div:hover {
+											background: ${hoverTint};
+										}
+									`}</style>
 								</li>
 							);
 						})

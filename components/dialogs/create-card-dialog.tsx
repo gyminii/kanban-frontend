@@ -123,47 +123,29 @@ export default function CreateCardDialog({
 				optimisticResponse: { addCard: optimisticCard },
 				update(cache, { data }) {
 					const newCard = data?.addCard;
-
-					if (!newCard) {
-						console.log("No new card data received. Cache not updated.");
-						return;
-					}
-
-					console.log(
-						`Adding new card with ID ${newCard.id} to cache for column ID ${newCard.columnId}`
-					);
-
+					if (!newCard) return;
+					const columnEntityId = cache.identify({
+						__typename: "Column",
+						id: newCard.columnId,
+					});
+					if (!columnEntityId) return;
 					cache.modify({
-						id: cache.identify({ __typename: "Column", id: newCard.columnId }),
+						id: columnEntityId,
 						fields: {
-							cards(existingCards = []) {
+							cards(existingCardsRefs = []) {
 								const newCardRef = cache.writeFragment({
 									data: newCard,
 									fragment: CARD_FIELDS,
 									fragmentName: "CardFields",
 								});
-
-								if (
-									existingCards.some(
-										(ref: Reference) => ref.__ref === newCardRef?.__ref
-									)
-								) {
-									console.log(
-										"Optimistic card already exists. No new reference added."
-									);
-									return existingCards;
-								}
-
-								console.log(
-									`Successfully added new card reference to the list. Current count: ${
-										existingCards.length + 1
-									}`
-								);
-
-								return [...existingCards, newCardRef];
+								return [...existingCardsRefs, newCardRef];
 							},
 						},
 					});
+
+					console.log(
+						"✅ Cache modification complete. Check your UI for the new card."
+					);
 				},
 			});
 

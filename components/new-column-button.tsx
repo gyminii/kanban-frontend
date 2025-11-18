@@ -2,9 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import CreateColumnDialog from "@/components/dialogs/create-column-dialog";
+import CreateDemoColumnDialog from "@/components/dialogs/create-demo-column-dialog";
 import { useState } from "react";
 
-export function NewColumnButton({ boardId }: { boardId: string }) {
+export function NewColumnButton({
+	boardId,
+	isDemo = false
+}: {
+	boardId: string;
+	isDemo?: boolean;
+}) {
 	const [open, setOpen] = useState(false);
 	return (
 		<>
@@ -14,11 +21,18 @@ export function NewColumnButton({ boardId }: { boardId: string }) {
 			>
 				New Column
 			</Button>
-			<CreateColumnDialog
-				boardId={boardId}
-				open={open}
-				onOpenChange={setOpen}
-			/>
+			{isDemo ? (
+				<CreateDemoColumnDialog
+					open={open}
+					onOpenChange={setOpen}
+				/>
+			) : (
+				<CreateColumnDialog
+					boardId={boardId}
+					open={open}
+					onOpenChange={setOpen}
+				/>
+			)}
 		</>
 	);
 }

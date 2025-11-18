@@ -1,5 +1,7 @@
 import { GoogleButton } from "@/components/google-signin";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
 	return (
@@ -18,6 +20,27 @@ export default function LoginPage() {
 				</header>
 
 				<GoogleButton />
+
+				<div className="relative my-6">
+					<div className="absolute inset-0 flex items-center">
+						<div className="w-full border-t border-indigo-200 dark:border-indigo-800" />
+					</div>
+					<div className="relative flex justify-center text-xs uppercase">
+						<span className="bg-white px-2 text-indigo-500 dark:bg-indigo-950 dark:text-indigo-400">
+							Or
+						</span>
+					</div>
+				</div>
+
+				<Link href="/demo" className="block">
+					<Button
+						variant="outline"
+						className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-700 dark:text-indigo-300 dark:hover:bg-indigo-900/30"
+					>
+						<Sparkles className="mr-2 h-4 w-4" />
+						Try Demo (No Sign Up)
+					</Button>
+				</Link>
 
 				<footer className="mt-6 text-center text-xs text-indigo-700/60 dark:text-indigo-200/60">
 					Built with ❤️ for better project management

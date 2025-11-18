@@ -4,9 +4,10 @@ import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import Column from "@/components/kanban/column";
 import type { ColumnT } from "@/components/kanban/types";
 import { useBoardDnd } from "@/hooks/use-board-dnd";
+import { useDemoBoardDnd } from "@/hooks/use-demo-board-dnd";
 
-export default function KanbanCanvas() {
-	const { board, onDragEnd } = useBoardDnd();
+export default function KanbanCanvas({ isDemo = false }: { isDemo?: boolean }) {
+	const { board, onDragEnd } = isDemo ? useDemoBoardDnd() : useBoardDnd();
 
 	const columns = board.columns ?? [];
 	const cols: ColumnT[] = (columns ?? []).filter(
@@ -36,7 +37,7 @@ export default function KanbanCanvas() {
 							].join(" ")}
 						>
 							{cols.map((col, i) => (
-								<Column key={col.id} index={i} column={col} />
+								<Column key={col.id} index={i} column={col} isDemo={isDemo} />
 							))}
 							{dropProvided.placeholder}
 						</div>

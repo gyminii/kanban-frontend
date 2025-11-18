@@ -11,11 +11,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import EditBoardDialog from "../dialogs/edit-board-dialog";
+import EditDemoBoardDialog from "../dialogs/edit-demo-board-dialog";
 import DeleteBoardDialog from "../dialogs/delete-board-dialog";
 import { BoardT } from "./types"; // ← use your existing type
 import { useState } from "react";
 
-export default function BoardMenu({ board }: { board: BoardT }) {
+export default function BoardMenu({
+	board,
+	isDemo = false
+}: {
+	board: BoardT;
+	isDemo?: boolean;
+}) {
 	const [openEdit, setOpenEdit] = useState(false);
 	const [openDelete, setOpenDelete] = useState(false);
 
@@ -34,28 +41,42 @@ export default function BoardMenu({ board }: { board: BoardT }) {
 						<Pencil className="mr-2 h-4 w-4" />
 						Edit board
 					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						className="text-red-600 focus:text-red-600"
-						onSelect={() => setOpenDelete(true)}
-					>
-						<Trash2 className="mr-2 h-4 w-4" />
-						Delete board…
-					</DropdownMenuItem>
+					{!isDemo && (
+						<>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								className="text-red-600 focus:text-red-600"
+								onSelect={() => setOpenDelete(true)}
+							>
+								<Trash2 className="mr-2 h-4 w-4" />
+								Delete board…
+							</DropdownMenuItem>
+						</>
+					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<EditBoardDialog
-				open={openEdit}
-				onOpenChange={setOpenEdit}
-				board={board}
-			/>
-			<DeleteBoardDialog
-				open={openDelete}
-				onOpenChange={setOpenDelete}
-				boardId={board.id}
-				boardTitle={board.title}
-			/>
+			{isDemo ? (
+				<EditDemoBoardDialog
+					open={openEdit}
+					onOpenChange={setOpenEdit}
+					board={board}
+				/>
+			) : (
+				<EditBoardDialog
+					open={openEdit}
+					onOpenChange={setOpenEdit}
+					board={board}
+				/>
+			)}
+			{!isDemo && (
+				<DeleteBoardDialog
+					open={openDelete}
+					onOpenChange={setOpenDelete}
+					boardId={board.id}
+					boardTitle={board.title}
+				/>
+			)}
 		</>
 	);
 }

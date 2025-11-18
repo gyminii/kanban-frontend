@@ -28,9 +28,11 @@ import DeleteColumnDialog from "../dialogs/delete-column-dialog";
 export default function Column({
 	index,
 	column,
+	isDemo = false,
 }: {
 	index: number;
 	column: ColumnT;
+	isDemo?: boolean;
 }) {
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);

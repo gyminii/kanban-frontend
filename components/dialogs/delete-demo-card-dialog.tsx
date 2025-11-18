@@ -65,9 +65,9 @@ export default function DeleteDemoCardDialog({
 					<AlertDialogDescription>
 						{title ? (
 							<span>
-								You're about to delete{" "}
-								<span className="font-medium">"{title}"</span>. This can't be
-								undone.
+								You&apos;re about to delete{" "}
+								<span className="font-medium">&quot;{title}&quot;</span>. This
+								can&apos;t be undone.
 							</span>
 						) : (
 							"This action can't be undone."

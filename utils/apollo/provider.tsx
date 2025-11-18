@@ -6,6 +6,9 @@ import {
 	ApolloClient,
 	InMemoryCache,
 } from "@apollo/client-integration-nextjs";
+import { onError } from "@apollo/client/link/error";
+import { ApolloLink } from "@apollo/client";
+import { toast } from "sonner";
 
 // have a function to create a client for you
 function makeClient() {
@@ -28,10 +31,43 @@ function makeClient() {
 		// const { data } = useSuspenseQuery(MY_QUERY, { context: { fetchOptions: { ... }}});
 	});
 
+	// Error handling link to catch network errors
+	const errorLink = onError(({ networkError, graphQLErrors }) => {
+		if (networkError) {
+			// Check if it's a connection failure (server not running)
+			if (
+				"message" in networkError &&
+				(networkError.message.includes("fetch failed") ||
+					networkError.message.includes("ECONNREFUSED") ||
+					networkError.message.includes("Failed to fetch"))
+			) {
+				toast.error(
+					"Backend server is not running. Please start the server on port 8080.",
+					{
+						duration: 5000,
+					}
+				);
+			} else {
+				toast.error(`Network error: ${networkError.message}`, {
+					duration: 5000,
+				});
+			}
+			console.error("[Network error]:", networkError);
+		}
+
+		if (graphQLErrors) {
+			graphQLErrors.forEach(({ message, locations, path }) => {
+				console.error(
+					`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+				);
+			});
+		}
+	});
+
 	// use the `ApolloClient` from "@apollo/client-integration-nextjs"
 	return new ApolloClient({
 		cache: new InMemoryCache(),
-		link: httpLink,
+		link: ApolloLink.from([errorLink, httpLink]),
 	});
 }
 

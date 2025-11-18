@@ -1,6 +1,5 @@
 "use client";
 
-import KanbanCanvas from "@/components/kanban/canvas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,15 +8,16 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useDemoBoardDnd } from "@/hooks/use-demo-board-dnd";
-import { useDemoStore } from "@/utils/demo/store";
 import { cn } from "@/lib/utils";
+import { useDemoStore } from "@/utils/demo/store";
 import { formatDate } from "@/utils/format-date";
-import { Archive, Hash, Paintbrush, Star, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Archive, Hash, Paintbrush, Sparkles, Star } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { NewColumnButton } from "../new-column-button";
 import BoardMenu from "./board-menu";
-import Link from "next/link";
+import DemoCanvas from "./demo-canvas";
 
 const SUGGESTED_COLORS = [
 	"#4f46e5", // indigo
@@ -90,7 +90,8 @@ export default function DemoBoardView() {
 								You&apos;re in Demo Mode
 							</h3>
 							<p className="mt-0.5 text-sm text-indigo-700 dark:text-indigo-300">
-								Try all features! Your changes are saved locally in this browser.
+								Try all features! Your changes are saved locally in this
+								browser.
 							</p>
 						</div>
 					</div>
@@ -249,7 +250,7 @@ export default function DemoBoardView() {
 				style={{ boxShadow: `inset 0 1px 0 0 ${accent}1a` }}
 			>
 				<div className="h-full w-full rounded-2xl p-2 sm:p-3">
-					<KanbanCanvas />
+					<DemoCanvas />
 				</div>
 			</div>
 		</div>

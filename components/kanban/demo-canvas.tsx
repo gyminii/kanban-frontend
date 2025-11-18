@@ -2,11 +2,11 @@
 
 import Column from "@/components/kanban/column";
 import type { ColumnT } from "@/components/kanban/types";
-import { useBoardDnd } from "@/hooks/use-board-dnd";
+import { useDemoBoardDnd } from "@/hooks/use-demo-board-dnd";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 
-export default function KanbanCanvas() {
-	const { board, onDragEnd } = useBoardDnd();
+export default function DemoCanvas() {
+	const { board, onDragEnd } = useDemoBoardDnd();
 
 	const columns = board.columns ?? [];
 	const cols: ColumnT[] = (columns ?? []).filter(

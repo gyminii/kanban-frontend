@@ -31,7 +31,7 @@ export default async function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning className={`${poppins.variable}`}>
 			<body>
-				<ApolloProvider>
+				<>
 					<ThemeProvider
 						attribute="class"
 						defaultTheme="system"
@@ -73,7 +73,7 @@ export default async function RootLayout({
 							</main>
 						</SettingsProvider>
 					</ThemeProvider>
-				</ApolloProvider>
+				</>
 			</body>
 		</html>
 	);

@@ -1,11 +1,11 @@
 "use client";
 
 import type { DropResult } from "@hello-pangea/dnd";
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+import type { BoardT } from "@/components/kanban/types";
 import { useDemoStore } from "@/utils/demo/store";
-import type { BoardT, ColumnT } from "@/components/kanban/types";
 
 export function useDemoBoardDnd() {
 	const board = useDemoStore((state) => state.board);
@@ -51,7 +51,10 @@ export function useDemoBoardDnd() {
 				const movedCard = fromCol.cards.find((c) => c.id === movedId);
 				if (!movedCard) return;
 
-				const baseDest = fromId === toId ? fromCol.cards.filter((c) => c.id !== movedId) : toCol.cards;
+				const baseDest =
+					fromId === toId
+						? fromCol.cards.filter((c) => c.id !== movedId)
+						: toCol.cards;
 				const targetIndex = Math.max(
 					0,
 					Math.min(destination.index, baseDest.length)

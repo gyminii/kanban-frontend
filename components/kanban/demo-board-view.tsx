@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { NewColumnButton } from "../new-column-button";
 import BoardMenu from "./board-menu";
 import Link from "next/link";
+import DemoCanvas from "./demo-canvas";
 
 const SUGGESTED_COLORS = [
 	"#4f46e5", // indigo
@@ -82,7 +83,8 @@ export default function DemoBoardView() {
 								You&apos;re in Demo Mode
 							</h3>
 							<p className="mt-0.5 text-sm text-indigo-700 dark:text-indigo-300">
-								Try all features! Your changes are saved locally in this browser.
+								Try all features! Your changes are saved locally in this
+								browser.
 							</p>
 						</div>
 					</div>
@@ -241,7 +243,7 @@ export default function DemoBoardView() {
 				style={{ boxShadow: `inset 0 1px 0 0 ${accent}1a` }}
 			>
 				<div className="h-full w-full rounded-2xl p-2 sm:p-3">
-					<KanbanCanvas isDemo />
+					<DemoCanvas />
 				</div>
 			</div>
 		</div>

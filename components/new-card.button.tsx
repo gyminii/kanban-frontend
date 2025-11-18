@@ -3,14 +3,16 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateCardDialog from "./dialogs/create-card-dialog";
+import CreateDemoCardDialog from "./dialogs/create-demo-card-dialog";
 import { useState } from "react";
 
 type Props = {
 	columnId: string;
 	nextOrder: number;
+	isDemo?: boolean;
 };
 
-export default function NewCardButton({ columnId, nextOrder }: Props) {
+export default function NewCardButton({ columnId, nextOrder, isDemo = false }: Props) {
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -25,12 +27,20 @@ export default function NewCardButton({ columnId, nextOrder }: Props) {
 				Add Card
 			</Button>
 
-			<CreateCardDialog
-				open={open}
-				onOpenChange={setOpen}
-				columnId={columnId}
-				nextOrder={nextOrder}
-			/>
+			{isDemo ? (
+				<CreateDemoCardDialog
+					open={open}
+					onOpenChange={setOpen}
+					columnId={columnId}
+				/>
+			) : (
+				<CreateCardDialog
+					open={open}
+					onOpenChange={setOpen}
+					columnId={columnId}
+					nextOrder={nextOrder}
+				/>
+			)}
 		</>
 	);
 }

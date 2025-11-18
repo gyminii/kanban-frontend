@@ -19,7 +19,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import EditCardDialog from "../dialogs/edit-card-dialog";
+import EditDemoCardDialog from "../dialogs/edit-demo-card-dialog";
 import DeleteCardDialog from "../dialogs/delete-card-dialog";
+import DeleteDemoCardDialog from "../dialogs/delete-demo-card-dialog";
 import { useState } from "react";
 
 type Density = "comfy" | "compact";
@@ -30,6 +32,7 @@ type Props = {
 	density?: Density;
 	showDescription?: boolean;
 	showUpdatedAt?: boolean;
+	isDemo?: boolean;
 };
 
 export default function CardItem({
@@ -38,6 +41,7 @@ export default function CardItem({
 	density = "comfy",
 	showDescription = true,
 	showUpdatedAt = true,
+	isDemo = false,
 }: Props) {
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
@@ -228,17 +232,38 @@ export default function CardItem({
 					</div>
 
 					{/* Dialogs */}
-					<EditCardDialog
-						open={editOpen}
-						onOpenChange={setEditOpen}
-						card={card}
-					/>
-					<DeleteCardDialog
-						open={deleteOpen}
-						onOpenChange={setDeleteOpen}
-						cardId={card.id}
-						columnId={card.columnId}
-					/>
+					{isDemo ? (
+						<>
+							<EditDemoCardDialog
+								open={editOpen}
+								onOpenChange={setEditOpen}
+								card={card}
+							/>
+							<DeleteDemoCardDialog
+								open={deleteOpen}
+								onOpenChange={setDeleteOpen}
+								cardId={card.id}
+								title={card.title}
+								dueDate={card.dueDate}
+							/>
+						</>
+					) : (
+						<>
+							<EditCardDialog
+								open={editOpen}
+								onOpenChange={setEditOpen}
+								card={card}
+							/>
+							<DeleteCardDialog
+								open={deleteOpen}
+								onOpenChange={setDeleteOpen}
+								cardId={card.id}
+								columnId={card.columnId}
+								title={card.title}
+								dueDate={card.dueDate}
+							/>
+						</>
+					)}
 				</div>
 			)}
 		</Draggable>

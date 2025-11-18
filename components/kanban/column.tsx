@@ -221,7 +221,7 @@ export default function Column({
 										</div>
 									) : (
 										column.cards.map((card, i) => (
-											<CardItem key={card.id} card={card} index={i} />
+											<CardItem key={card.id} card={card} index={i} isDemo={isDemo} />
 										))
 									)}
 									{dropProvided.placeholder}
@@ -233,6 +233,7 @@ export default function Column({
 							<NewCardButton
 								columnId={column.id}
 								nextOrder={column.cards.length}
+								isDemo={isDemo}
 							/>
 						</div>
 					</div>

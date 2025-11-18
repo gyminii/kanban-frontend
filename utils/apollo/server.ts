@@ -4,7 +4,6 @@ import {
 	ApolloClient,
 	InMemoryCache,
 } from "@apollo/client-integration-nextjs";
-import { onError } from "@apollo/client/link/error";
 import { ApolloLink } from "@apollo/client";
 
 export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
@@ -13,39 +12,38 @@ export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
 			process.env.NODE_ENV === "development"
 				? "http://localhost:8080/graphql/"
 				: process.env.NEXT_PUBLIC_GRAPHQL_URL,
-		fetchOptions: {},
-	});
+		fetch: async (uri, options) => {
+			try {
+				const response = await fetch(uri, options);
 
-	// Error handling link for server-side requests
-	const errorLink = onError(({ networkError, graphQLErrors }) => {
-		if (networkError) {
-			console.error(
-				"[Server-side Network error]:",
-				networkError.message || networkError
-			);
-			if (
-				"message" in networkError &&
-				(networkError.message.includes("fetch failed") ||
-					networkError.message.includes("ECONNREFUSED") ||
-					networkError.message.includes("Failed to fetch"))
-			) {
-				console.error(
-					"Backend server is not running on port 8080. Please start the server."
-				);
+				// Check if response is ok
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				return response;
+			} catch (error) {
+				console.error("[Network error]:", error);
+
+				if (
+					error instanceof Error &&
+					(error.message.includes("fetch failed") ||
+						error.message.includes("ECONNREFUSED") ||
+						error.message.includes("Failed to fetch"))
+				) {
+					console.error(
+						"Backend server is not running on port 8080. Please start the server."
+					);
+				}
+
+				throw error;
 			}
-		}
-
-		if (graphQLErrors) {
-			graphQLErrors.forEach(({ message, locations, path }) => {
-				console.error(
-					`[Server-side GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-				);
-			});
-		}
+		},
+		fetchOptions: {},
 	});
 
 	return new ApolloClient({
 		cache: new InMemoryCache(),
-		link: ApolloLink.from([errorLink, httpLink]),
+		link: httpLink,
 	});
 });

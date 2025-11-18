@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 import { FormEvent, useState } from "react";
 
 type Props = {
@@ -44,7 +44,8 @@ export default function CreateDemoCardDialog({
 	onOpenChange,
 	columnId,
 }: Props) {
-	const { addCard, updateCard } = useDemoContext();
+	const addCard = useDemoStore((state) => state.addCard);
+	const updateCard = useDemoStore((state) => state.updateCard);
 	const [submitting, setSubmitting] = useState(false);
 	const [form, setForm] = useState<FormState>({
 		title: "",

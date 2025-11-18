@@ -22,7 +22,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 import { FormEvent, useEffect, useState } from "react";
 
 type Props = {
@@ -40,7 +40,7 @@ type FormState = {
 };
 
 export default function EditDemoCardDialog({ open, onOpenChange, card }: Props) {
-	const { updateCard } = useDemoContext();
+	const updateCard = useDemoStore((state) => state.updateCard);
 	const [submitting, setSubmitting] = useState(false);
 
 	const [form, setForm] = useState<FormState>(() => ({

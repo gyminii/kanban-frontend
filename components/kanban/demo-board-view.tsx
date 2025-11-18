@@ -9,7 +9,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useDemoBoardDnd } from "@/hooks/use-demo-board-dnd";
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/format-date";
 import { Archive, Hash, Paintbrush, Star, Sparkles } from "lucide-react";
@@ -50,19 +50,20 @@ function bgClass(hex: string) {
 
 export default function DemoBoardView() {
 	const { board } = useDemoBoardDnd();
-	const { updateBoard, resetDemo } = useDemoContext();
+	const updateBoard = useDemoStore((state) => state.updateBoard);
+	const resetDemo = useDemoStore((state) => state.resetDemo);
 	const totalCards = board?.columns.reduce((n, c) => n + c?.cards?.length, 0);
 	const accent = board?.color || "#4f46e5";
 	const tags = (board?.tags ?? []).slice(0, 10);
 
-	function toggleFavorite() {
+	function toggleFavorite(): void {
 		updateBoard({ ...board, isFavorite: !board.isFavorite });
 		toast.success(
 			board.isFavorite ? "Removed from favorites" : "Added to favorites"
 		);
 	}
 
-	function changeColor(newColor: string) {
+	function changeColor(newColor: string): void {
 		updateBoard({ ...board, color: newColor });
 		toast.success("Board color updated");
 	}

@@ -4,11 +4,13 @@ import type { DropResult } from "@hello-pangea/dnd";
 import { useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 import type { BoardT, ColumnT } from "@/components/kanban/types";
 
 export function useDemoBoardDnd() {
-	const { board, moveColumn, moveCard } = useDemoContext();
+	const board = useDemoStore((state) => state.board);
+	const moveColumn = useDemoStore((state) => state.moveColumn);
+	const moveCard = useDemoStore((state) => state.moveCard);
 
 	const boardRef = useRef<BoardT>(board);
 	useEffect(() => {

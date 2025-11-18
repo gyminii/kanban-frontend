@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/format-date";
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 import { AlertTriangle, Clock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ export default function DeleteDemoCardDialog({
 	title,
 	dueDate,
 }: Props) {
-	const { deleteCard } = useDemoContext();
+	const deleteCard = useDemoStore((state) => state.deleteCard);
 	const [submitting, setSubmitting] = useState(false);
 
 	async function onConfirm(): Promise<void> {

@@ -7,12 +7,16 @@ import { useBoardDnd } from "@/hooks/use-board-dnd";
 import { useDemoBoardDnd } from "@/hooks/use-demo-board-dnd";
 
 export default function KanbanCanvas({ isDemo = false }: { isDemo?: boolean }) {
-	const { board, onDragEnd } = isDemo ? useDemoBoardDnd() : useBoardDnd();
+	const demoBoardResult = useDemoBoardDnd();
+	const boardResult = useBoardDnd();
+
+	const { board, onDragEnd } = isDemo ? demoBoardResult : boardResult;
 
 	const columns = board.columns ?? [];
 	const cols: ColumnT[] = (columns ?? []).filter(
 		(c): c is ColumnT => !!c && typeof c.id === "string"
 	);
+
 	return (
 		<div className="relative h-full rounded-xl border bg-muted/30 dark:bg-muted/20 shadow-sm">
 			{/* left & right edge fades */}

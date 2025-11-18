@@ -55,7 +55,8 @@ export async function updateSession(request: NextRequest) {
 			return NextResponse.redirect(url);
 		}
 	} else {
-		if (pathname !== "/login") {
+		// Allow demo routes without authentication
+		if (pathname !== "/login" && !pathname.startsWith("/demo")) {
 			const url = request.nextUrl.clone();
 			url.pathname = "/login";
 			return NextResponse.redirect(url);

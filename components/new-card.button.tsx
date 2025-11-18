@@ -5,14 +5,15 @@ import { Button } from "@/components/ui/button";
 import CreateCardDialog from "./dialogs/create-card-dialog";
 import CreateDemoCardDialog from "./dialogs/create-demo-card-dialog";
 import { useState } from "react";
+import { useDemoStore } from "@/utils/demo/store";
 
 type Props = {
 	columnId: string;
 	nextOrder: number;
-	isDemo?: boolean;
 };
 
-export default function NewCardButton({ columnId, nextOrder, isDemo = false }: Props) {
+export default function NewCardButton({ columnId, nextOrder }: Props) {
+	const isDemo = useDemoStore((state) => state.isDemo);
 	const [open, setOpen] = useState(false);
 
 	return (

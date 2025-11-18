@@ -5,8 +5,10 @@ import Column from "@/components/kanban/column";
 import type { ColumnT } from "@/components/kanban/types";
 import { useBoardDnd } from "@/hooks/use-board-dnd";
 import { useDemoBoardDnd } from "@/hooks/use-demo-board-dnd";
+import { useDemoStore } from "@/utils/demo/store";
 
-export default function KanbanCanvas({ isDemo = false }: { isDemo?: boolean }) {
+export default function KanbanCanvas() {
+	const isDemo = useDemoStore((state) => state.isDemo);
 	const demoBoardResult = useDemoBoardDnd();
 	const boardResult = useBoardDnd();
 
@@ -41,7 +43,7 @@ export default function KanbanCanvas({ isDemo = false }: { isDemo?: boolean }) {
 							].join(" ")}
 						>
 							{cols.map((col, i) => (
-								<Column key={col.id} index={i} column={col} isDemo={isDemo} />
+								<Column key={col.id} index={i} column={col} />
 							))}
 							{dropProvided.placeholder}
 						</div>

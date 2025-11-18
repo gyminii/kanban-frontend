@@ -5,6 +5,8 @@ import { initialDemoBoard, DEMO_BOARD_ID } from "./initial-data";
 
 interface DemoState {
 	board: BoardT;
+	isDemo: boolean;
+	setIsDemo: (value: boolean) => void;
 	updateBoard: (board: BoardT) => void;
 	addColumn: (title: string, description?: string) => ColumnT;
 	updateColumn: (columnId: string, updates: Partial<ColumnT>) => void;
@@ -21,6 +23,11 @@ export const useDemoStore = create<DemoState>()(
 	persist(
 		(set, get) => ({
 			board: initialDemoBoard,
+			isDemo: false,
+
+			setIsDemo: (value: boolean) => {
+				set({ isDemo: value });
+			},
 
 			updateBoard: (updatedBoard: BoardT) => {
 				set({ board: updatedBoard });

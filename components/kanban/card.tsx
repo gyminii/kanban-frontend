@@ -23,6 +23,7 @@ import EditDemoCardDialog from "../dialogs/edit-demo-card-dialog";
 import DeleteCardDialog from "../dialogs/delete-card-dialog";
 import DeleteDemoCardDialog from "../dialogs/delete-demo-card-dialog";
 import { useState } from "react";
+import { useDemoStore } from "@/utils/demo/store";
 
 type Density = "comfy" | "compact";
 
@@ -32,7 +33,6 @@ type Props = {
 	density?: Density;
 	showDescription?: boolean;
 	showUpdatedAt?: boolean;
-	isDemo?: boolean;
 };
 
 export default function CardItem({
@@ -41,8 +41,8 @@ export default function CardItem({
 	density = "comfy",
 	showDescription = true,
 	showUpdatedAt = true,
-	isDemo = false,
 }: Props) {
+	const isDemo = useDemoStore((state) => state.isDemo);
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
 

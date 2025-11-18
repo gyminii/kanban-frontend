@@ -13,7 +13,7 @@ import { useDemoStore } from "@/utils/demo/store";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/format-date";
 import { Archive, Hash, Paintbrush, Star, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { NewColumnButton } from "../new-column-button";
 import BoardMenu from "./board-menu";
@@ -52,9 +52,17 @@ export default function DemoBoardView() {
 	const { board } = useDemoBoardDnd();
 	const updateBoard = useDemoStore((state) => state.updateBoard);
 	const resetDemo = useDemoStore((state) => state.resetDemo);
+	const setIsDemo = useDemoStore((state) => state.setIsDemo);
 	const totalCards = board?.columns.reduce((n, c) => n + c?.cards?.length, 0);
 	const accent = board?.color || "#4f46e5";
 	const tags = (board?.tags ?? []).slice(0, 10);
+
+	// Enable demo mode when component mounts
+	useEffect(() => {
+		setIsDemo(true);
+		// Clean up: disable demo mode when component unmounts
+		return () => setIsDemo(false);
+	}, [setIsDemo]);
 
 	function toggleFavorite(): void {
 		updateBoard({ ...board, isFavorite: !board.isFavorite });
@@ -186,8 +194,8 @@ export default function DemoBoardView() {
 						{/* actions */}
 						<div className="flex items-center gap-2">
 							<ColorPickerButton color={accent} onPick={changeColor} />
-							<NewColumnButton boardId={board?.id} isDemo />
-							<BoardMenu board={board} isDemo />
+							<NewColumnButton boardId={board?.id} />
+							<BoardMenu board={board} />
 						</div>
 					</div>
 
@@ -241,7 +249,7 @@ export default function DemoBoardView() {
 				style={{ boxShadow: `inset 0 1px 0 0 ${accent}1a` }}
 			>
 				<div className="h-full w-full rounded-2xl p-2 sm:p-3">
-					<KanbanCanvas isDemo />
+					<KanbanCanvas />
 				</div>
 			</div>
 		</div>

@@ -24,16 +24,16 @@ import { format } from "date-fns";
 import { useState } from "react";
 import EditColumnDialog from "../dialogs/edit-column-dialog";
 import DeleteColumnDialog from "../dialogs/delete-column-dialog";
+import { useDemoStore } from "@/utils/demo/store";
 
 export default function Column({
 	index,
 	column,
-	isDemo = false,
 }: {
 	index: number;
 	column: ColumnT;
-	isDemo?: boolean;
 }) {
+	const isDemo = useDemoStore((state) => state.isDemo);
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
 	const total = column.cards.length;
@@ -221,7 +221,7 @@ export default function Column({
 										</div>
 									) : (
 										column.cards.map((card, i) => (
-											<CardItem key={card.id} card={card} index={i} isDemo={isDemo} />
+											<CardItem key={card.id} card={card} index={i} />
 										))
 									)}
 									{dropProvided.placeholder}
@@ -233,7 +233,6 @@ export default function Column({
 							<NewCardButton
 								columnId={column.id}
 								nextOrder={column.cards.length}
-								isDemo={isDemo}
 							/>
 						</div>
 					</div>

@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import CreateColumnDialog from "@/components/dialogs/create-column-dialog";
 import CreateDemoColumnDialog from "@/components/dialogs/create-demo-column-dialog";
 import { useState } from "react";
+import { useDemoStore } from "@/utils/demo/store";
 
 export function NewColumnButton({
 	boardId,
-	isDemo = false
 }: {
 	boardId: string;
-	isDemo?: boolean;
 }) {
+	const isDemo = useDemoStore((state) => state.isDemo);
 	const [open, setOpen] = useState(false);
 	return (
 		<>

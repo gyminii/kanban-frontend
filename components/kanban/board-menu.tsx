@@ -15,14 +15,14 @@ import EditDemoBoardDialog from "../dialogs/edit-demo-board-dialog";
 import DeleteBoardDialog from "../dialogs/delete-board-dialog";
 import { BoardT } from "./types"; // ← use your existing type
 import { useState } from "react";
+import { useDemoStore } from "@/utils/demo/store";
 
 export default function BoardMenu({
 	board,
-	isDemo = false
 }: {
 	board: BoardT;
-	isDemo?: boolean;
 }) {
+	const isDemo = useDemoStore((state) => state.isDemo);
 	const [openEdit, setOpenEdit] = useState(false);
 	const [openDelete, setOpenDelete] = useState(false);
 

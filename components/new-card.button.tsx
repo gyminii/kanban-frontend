@@ -9,10 +9,9 @@ import { useState } from "react";
 type Props = {
 	columnId: string;
 	nextOrder: number;
-	isDemo?: boolean;
 };
 
-export default function NewCardButton({ columnId, nextOrder, isDemo = false }: Props) {
+export default function NewCardButton({ columnId, nextOrder }: Props) {
 	const [open, setOpen] = useState(false);
 
 	return (

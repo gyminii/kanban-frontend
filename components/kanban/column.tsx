@@ -28,11 +28,9 @@ import DeleteColumnDialog from "../dialogs/delete-column-dialog";
 export default function Column({
 	index,
 	column,
-	isDemo = false,
 }: {
 	index: number;
 	column: ColumnT;
-	isDemo?: boolean;
 }) {
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
@@ -221,7 +219,12 @@ export default function Column({
 										</div>
 									) : (
 										column.cards.map((card, i) => (
-											<CardItem key={card.id} card={card} index={i} isDemo={isDemo} />
+											<CardItem
+												key={card.id}
+												card={card}
+												index={i}
+												isDemo={isDemo}
+											/>
 										))
 									)}
 									{dropProvided.placeholder}

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 
 import { useEffect, useState } from "react";
 import type { BoardT } from "../kanban/types";
@@ -38,7 +38,7 @@ export default function EditDemoBoardDialog({
 	onOpenChange,
 	board,
 }: Props) {
-	const { updateBoard } = useDemoContext();
+	const updateBoard = useDemoStore((state) => state.updateBoard);
 	const [submitting, setSubmitting] = useState(false);
 	const [form, setForm] = useState<FormState>({
 		title: board.title ?? "",

@@ -3,7 +3,7 @@
 import { KanbanSquare } from "lucide-react";
 import { toast } from "sonner";
 
-import { useDemoContext } from "@/utils/demo/context";
+import { useDemoStore } from "@/utils/demo/store";
 
 import {
 	Dialog,
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function CreateDemoColumnDialog({ open, onOpenChange }: Props) {
-	const { addColumn } = useDemoContext();
+	const addColumn = useDemoStore((state) => state.addColumn);
 	const [submitting, setSubmitting] = useState(false);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");

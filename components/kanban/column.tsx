@@ -1,30 +1,29 @@
 "use client";
 
-import { Droppable, Draggable } from "@hello-pangea/dnd";
-import {
-	MoreHorizontal,
-	GripVertical,
-	Calendar as CalendarIcon,
-	CheckCircle2,
-	AlertTriangle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import CardItem from "@/components/kanban/card";
+import type { ColumnT } from "@/components/kanban/types";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import CardItem from "@/components/kanban/card";
-import type { ColumnT } from "@/components/kanban/types";
-import NewCardButton from "../new-card.button";
 import { cn } from "@/lib/utils";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
+import {
+	AlertTriangle,
+	Calendar as CalendarIcon,
+	CheckCircle2,
+	GripVertical,
+	MoreHorizontal,
+} from "lucide-react";
 import { useState } from "react";
-import EditColumnDialog from "../dialogs/edit-column-dialog";
 import DeleteColumnDialog from "../dialogs/delete-column-dialog";
-import { useDemoStore } from "@/utils/demo/store";
+import EditColumnDialog from "../dialogs/edit-column-dialog";
+import NewCardButton from "../new-card.button";
 
 export default function Column({
 	index,
@@ -33,7 +32,6 @@ export default function Column({
 	index: number;
 	column: ColumnT;
 }) {
-	const isDemo = useDemoStore((state) => state.isDemo);
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
 	const total = column.cards.length;

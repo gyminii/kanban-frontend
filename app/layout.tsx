@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { ApolloProvider } from "@/utils/apollo/provider";
 
 const poppins = Poppins({
 	variable: "--font-poppins",
@@ -30,47 +31,49 @@ export default async function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning className={`${poppins.variable}`}>
 			<body>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system"
-					enableSystem
-					disableTransitionOnChange
-				>
-					<SettingsProvider initial={initialSettings}>
-						<main className="h-full">
-							{children}
-							<Toaster
-								expand
-								toastOptions={{
-									// unstyled: true,
-									classNames: {
-										// Base box with better contrast
-										toast:
-											// px-4 py-3
-											"pointer-events-auto font-sans rounded-2xl border border-slate-200 dark:border-slate-800 " +
-											"bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-foreground shadow-lg",
-										icon: "border-indigo-500 text-indigo-600 dark:text-indigo-400",
-										// loader:
-										// 	"absolute place-items-center translate-[1px]",
-										title: "text-xs font-medium leading-none",
-										description: "text-xs text-muted-foreground leading-snug",
-										// Buttons
-										actionButton:
-											"ml-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline",
-										closeButton:
-											"ml-1 rounded-md p-1 text-muted-foreground hover:text-foreground",
-										// Variants (border + text only; keep bg neutral)
-										success: "border-indigo-500",
-										warning:
-											"border-amber-500 text-amber-700 dark:text-amber-300",
-										error: "border-rose-500 text-rose-700 dark:text-rose-300",
-										info: "border-sky-500 text-sky-700 dark:text-sky-300",
-									},
-								}}
-							/>
-						</main>
-					</SettingsProvider>
-				</ThemeProvider>
+				<ApolloProvider>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="system"
+						enableSystem
+						disableTransitionOnChange
+					>
+						<SettingsProvider initial={initialSettings}>
+							<main className="h-full">
+								{children}
+								<Toaster
+									expand
+									toastOptions={{
+										// unstyled: true,
+										classNames: {
+											// Base box with better contrast
+											toast:
+												// px-4 py-3
+												"pointer-events-auto font-sans rounded-2xl border border-slate-200 dark:border-slate-800 " +
+												"bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-foreground shadow-lg",
+											icon: "border-indigo-500 text-indigo-600 dark:text-indigo-400",
+											// loader:
+											// 	"absolute place-items-center translate-[1px]",
+											title: "text-xs font-medium leading-none",
+											description: "text-xs text-muted-foreground leading-snug",
+											// Buttons
+											actionButton:
+												"ml-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline",
+											closeButton:
+												"ml-1 rounded-md p-1 text-muted-foreground hover:text-foreground",
+											// Variants (border + text only; keep bg neutral)
+											success: "border-indigo-500",
+											warning:
+												"border-amber-500 text-amber-700 dark:text-amber-300",
+											error: "border-rose-500 text-rose-700 dark:text-rose-300",
+											info: "border-sky-500 text-sky-700 dark:text-sky-300",
+										},
+									}}
+								/>
+							</main>
+						</SettingsProvider>
+					</ThemeProvider>
+				</ApolloProvider>
 			</body>
 		</html>
 	);

@@ -25,7 +25,10 @@ export const metadata: Metadata = {
 
 export default function DemoPage() {
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+		<div
+			id="demo_page-div"
+			className="w-full min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950"
+		>
 			<div className="container mx-auto px-4 py-16">
 				{/* Header */}
 				<div className="text-center mb-12">

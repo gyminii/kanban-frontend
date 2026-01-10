@@ -128,7 +128,7 @@ export default function TasksSection() {
 	const count = filtered.length;
 
 	return (
-		<section className="rounded-2xl border shadow-md bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
+		<section className="rounded-xl border shadow-sm bg-card transition-all duration-200 hover:shadow-md">
 			<Tabs value={view} onValueChange={(v) => setView(v as typeof view)}>
 				{/* Header */}
 				<div className="flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -186,8 +186,8 @@ export default function TasksSection() {
 													key={t.id}
 													href={`/boards/${t.boardId}`}
 													className={cn(
-														"mb-3 block break-inside-avoid rounded-xl border bg-background px-3 py-3 transition-colors",
-														"hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30"
+														"mb-3 block break-inside-avoid rounded-lg border bg-background px-3 py-3 transition-all duration-200",
+														"hover:bg-secondary hover:border-primary/30"
 													)}
 												>
 													<article className="flex flex-col">
@@ -286,7 +286,7 @@ export default function TasksSection() {
 													return (
 														<TableRow
 															key={t.id}
-															className="hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20"
+															className="hover:bg-secondary transition-colors duration-200"
 														>
 															<TableCell className="max-w-[420px]">
 																<Link
@@ -320,7 +320,7 @@ export default function TasksSection() {
 																		Done
 																	</Badge>
 																) : (
-																	<Badge className="rounded-full bg-indigo-600 text-white">
+																	<Badge className="rounded-full bg-primary text-primary-foreground">
 																		Open
 																	</Badge>
 																)}
@@ -375,7 +375,7 @@ function EmptyState({ boardId }: { boardId: string }) {
 					<div className="mt-4">
 						<Button
 							asChild
-							className="bg-indigo-600 text-white hover:bg-indigo-600/90"
+							className="bg-primary text-primary-foreground hover:bg-indigo-600/90"
 						>
 							<Link href={`/boards/${boardId}`}>Go to Project</Link>
 						</Button>
@@ -414,7 +414,7 @@ function DueBadge({
 				variant={tone === "default" ? "default" : "outline"}
 				className={cn(
 					"rounded-full",
-					tone === "default" && "bg-indigo-600 text-white",
+					tone === "default" && "bg-primary text-primary-foreground",
 					tone === "destructive" &&
 						"border-rose-300 text-rose-700 dark:border-rose-900 dark:text-rose-300"
 				)}

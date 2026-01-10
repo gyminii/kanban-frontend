@@ -81,25 +81,21 @@ export default function CardItem({
 					ref={provided.innerRef}
 					{...provided.draggableProps}
 					className={cn(
-						"group relative rounded-2xl border bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm overflow-hidden",
-						"shadow-sm transition-all hover:shadow-md",
-						"ring-1 ring-transparent hover:ring-indigo-200/60 dark:hover:ring-indigo-500/30",
+						"group relative rounded-xl border bg-card overflow-hidden",
+						"shadow-sm transition-all duration-200 ease-out",
+						"hover:shadow-md hover:scale-[1.01] hover:border-primary/30",
 						pad,
-						snapshot.isDragging && "rotate-1 border-indigo-300 shadow-md"
+						snapshot.isDragging && "scale-[1.02] border-primary shadow-lg"
 					)}
 				>
-					{/* top gradient strip */}
+					{/* top solid strip */}
 					<div
 						className={cn(
-							"absolute inset-x-0 top-0 h-1.5",
-							statusTone === "green" &&
-								"bg-gradient-to-r from-emerald-400/70 to-emerald-500/60",
-							statusTone === "red" &&
-								"bg-gradient-to-r from-rose-400/70 to-rose-500/60",
-							statusTone === "indigo" &&
-								"bg-gradient-to-r from-indigo-400/70 to-indigo-500/60",
-							statusTone === "neutral" &&
-								"bg-gradient-to-r from-slate-300/60 to-slate-400/50 dark:from-neutral-700/60 dark:to-neutral-600/50"
+							"absolute inset-x-0 top-0 h-1",
+							statusTone === "green" && "bg-emerald-500",
+							statusTone === "red" && "bg-rose-500",
+							statusTone === "indigo" && "bg-primary",
+							statusTone === "neutral" && "bg-border"
 						)}
 					/>
 
@@ -109,9 +105,11 @@ export default function CardItem({
 							<div
 								{...provided.dragHandleProps}
 								className={cn(
-									"mr-0.5 h-5 w-5 shrink-0 rounded-md border",
+									"mr-0.5 h-5 w-5 shrink-0 rounded-lg border",
 									"flex items-center justify-center",
-									"cursor-grab active:cursor-grabbing text-neutral-400 bg-white dark:bg-neutral-900"
+									"cursor-grab active:cursor-grabbing",
+									"text-muted-foreground hover:text-foreground",
+									"hover:bg-secondary transition-colors duration-200"
 								)}
 								title="Drag card"
 							>
@@ -132,9 +130,9 @@ export default function CardItem({
 								<DropdownMenuTrigger asChild>
 									<button
 										className={cn(
-											"ml-auto rounded-md p-1.5",
-											"text-neutral-400 hover:text-neutral-700",
-											"hover:bg-neutral-100 dark:hover:bg-neutral-800"
+											"ml-auto rounded-lg p-1.5",
+											"text-muted-foreground hover:text-foreground",
+											"hover:bg-secondary transition-colors duration-200"
 										)}
 										title="More"
 										onMouseDown={(e) => e.stopPropagation()}
@@ -160,9 +158,9 @@ export default function CardItem({
 						{/* Title */}
 						<h3
 							className={cn(
-								"font-medium leading-snug tracking-tight",
+								"font-semibold leading-snug tracking-tight",
 								titleSize,
-								"text-neutral-900 dark:text-neutral-100"
+								"text-foreground"
 							)}
 						>
 							{card.title}
@@ -173,7 +171,7 @@ export default function CardItem({
 							<p
 								className={cn(
 									descClamp,
-									"text-xs text-neutral-600 dark:text-neutral-300"
+									"text-xs text-muted-foreground leading-relaxed"
 								)}
 							>
 								{card.description}
@@ -187,9 +185,9 @@ export default function CardItem({
 									<span
 										key={t}
 										className={cn(
-											"inline-flex items-center rounded-md border",
-											"bg-neutral-50 text-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-200",
-											"px-1.5 py-0.5 text-[10px] leading-4"
+											"inline-flex items-center rounded-lg border bg-secondary",
+											"text-secondary-foreground",
+											"px-1.5 py-0.5 text-[10px] font-medium leading-4"
 										)}
 										title={t}
 									>
@@ -197,7 +195,7 @@ export default function CardItem({
 									</span>
 								))}
 								{overflow > 0 && (
-									<span className="inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] leading-4 text-neutral-500">
+									<span className="inline-flex items-center rounded-lg border bg-secondary text-muted-foreground px-1.5 py-0.5 text-[10px] leading-4">
 										+{overflow} more
 									</span>
 								)}
@@ -205,16 +203,16 @@ export default function CardItem({
 						)}
 
 						{/* Separator */}
-						<div className="h-px w-full bg-neutral-100 dark:bg-neutral-800" />
+						<div className="h-px w-full bg-border" />
 
 						{/* Meta row 1 */}
-						<div className="flex items-center justify-between text-[11px] text-neutral-500">
+						<div className="flex items-center justify-between text-[11px] text-muted-foreground">
 							<div className="flex items-center gap-1.5">
 								<Clock className="h-3.5 w-3.5" />
 								<span>{formatDate(card.dueDate)}</span>
 							</div>
 							{showUpdatedAt ? (
-								<span className="text-neutral-400">
+								<span className="text-muted-foreground/70">
 									{formatDate(card.updatedAt)}
 								</span>
 							) : (
@@ -223,7 +221,7 @@ export default function CardItem({
 						</div>
 
 						{/* Meta row 2 */}
-						<div className="flex items-center justify-end text-[11px] text-neutral-400">
+						<div className="flex items-center justify-end text-[11px] text-muted-foreground/70">
 							<div className="flex items-center gap-1.5">
 								<CalendarIcon className="h-3 w-3" />
 								<span>{formatDate(card.createdAt)}</span>

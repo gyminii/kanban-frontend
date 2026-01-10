@@ -103,18 +103,12 @@ export default function BoardView() {
 		<div className="flex-1 overflow-hidden  h-full min-h-0 min-w-0 flex-col p-4">
 			{/* Header card */}
 			<div
-				className="mb-4 rounded-2xl border bg-white/90 shadow-sm backdrop-blur dark:bg-neutral-950/70 overflow-hidden"
-				style={{
-					background:
-						`linear-gradient(180deg, ${accent}10, transparent 55%),` +
-						`radial-gradient(600px 160px at 0% -10%, ${accent}0F, transparent 70%),` +
-						`var(--background)`,
-				}}
+				className="mb-4 rounded-xl border bg-card shadow-sm overflow-hidden transition-shadow duration-200 hover:shadow-md"
 			>
 				<div
-					className="h-1.5 w-full"
+					className="h-1 w-full"
 					style={{
-						background: `linear-gradient(90deg, ${accent}, ${accent}AA 40%, transparent 100%)`,
+						background: accent,
 					}}
 				/>
 
@@ -231,13 +225,10 @@ export default function BoardView() {
 			{/* Canvas */}
 			<div
 				className={cn(
-					"flex-1 min-h-0 rounded-2xl border",
-					"bg-[radial-gradient(1200px_400px_at_0%_-20%,rgba(99,102,241,0.06),transparent),linear-gradient(to_bottom,rgba(0,0,0,0.02),transparent)]",
-					"dark:bg-[radial-gradient(1200px_400px_at_0%_-20%,rgba(99,102,241,0.12),transparent),linear-gradient(to_bottom,rgba(255,255,255,0.03),transparent)]"
+					"flex-1 min-h-0 rounded-xl border bg-muted/20"
 				)}
-				style={{ boxShadow: `inset 0 1px 0 0 ${accent}1a` }}
 			>
-				<div className="h-full w-full rounded-2xl p-2 sm:p-3">
+				<div className="h-full w-full rounded-xl p-2 sm:p-3">
 					<KanbanCanvas />
 				</div>
 			</div>

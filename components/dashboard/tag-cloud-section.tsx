@@ -9,7 +9,7 @@ export default function TagCloudSection({
 		return null;
 	}
 	return (
-		<section className="rounded-2xl border shadow-md bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
+		<section className="rounded-xl border shadow-sm bg-card transition-all duration-200 hover:shadow-md">
 			<div className="px-4 py-3 border-b">
 				<span className="text-sm font-semibold">Tags</span>
 			</div>

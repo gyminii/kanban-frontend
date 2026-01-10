@@ -79,17 +79,17 @@ export default function DemoBoardView() {
 	return (
 		<div className="flex-1 overflow-hidden h-full min-h-0 min-w-0 flex-col p-4">
 			{/* Demo Banner */}
-			<div className="mb-4 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 p-4 shadow-sm dark:border-indigo-900 dark:from-indigo-950/50 dark:to-purple-950/50">
+			<div className="mb-4 rounded-xl border border-primary/20 bg-accent p-4 shadow-sm">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex items-start gap-3">
-						<div className="rounded-lg bg-indigo-100 p-2 dark:bg-indigo-900">
-							<Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+						<div className="rounded-lg bg-primary/10 p-2 border border-primary/20">
+							<Sparkles className="h-5 w-5 text-primary" />
 						</div>
 						<div>
-							<h3 className="font-semibold text-indigo-900 dark:text-indigo-100">
+							<h3 className="font-semibold text-accent-foreground">
 								You&apos;re in Demo Mode
 							</h3>
-							<p className="mt-0.5 text-sm text-indigo-700 dark:text-indigo-300">
+							<p className="mt-0.5 text-sm text-muted-foreground">
 								Try all features! Your changes are saved locally in this
 								browser.
 							</p>
@@ -100,12 +100,11 @@ export default function DemoBoardView() {
 							variant="outline"
 							size="sm"
 							onClick={resetDemo}
-							className="border-indigo-300 dark:border-indigo-700"
 						>
 							Reset Demo
 						</Button>
 						<Link href="/login">
-							<Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+							<Button size="sm" className="bg-primary hover:bg-primary/90">
 								Sign Up to Save
 							</Button>
 						</Link>
@@ -115,18 +114,12 @@ export default function DemoBoardView() {
 
 			{/* Header card */}
 			<div
-				className="mb-4 rounded-2xl border bg-white/90 shadow-sm backdrop-blur dark:bg-neutral-950/70 overflow-hidden"
-				style={{
-					background:
-						`linear-gradient(180deg, ${accent}10, transparent 55%),` +
-						`radial-gradient(600px 160px at 0% -10%, ${accent}0F, transparent 70%),` +
-						`var(--background)`,
-				}}
+				className="mb-4 rounded-xl border bg-card shadow-sm overflow-hidden transition-shadow duration-200 hover:shadow-md"
 			>
 				<div
-					className="h-1.5 w-full"
+					className="h-1 w-full"
 					style={{
-						background: `linear-gradient(90deg, ${accent}, ${accent}AA 40%, transparent 100%)`,
+						background: accent,
 					}}
 				/>
 
@@ -243,13 +236,10 @@ export default function DemoBoardView() {
 			{/* Canvas */}
 			<div
 				className={cn(
-					"flex-1 min-h-0 rounded-2xl border",
-					"bg-[radial-gradient(1200px_400px_at_0%_-20%,rgba(99,102,241,0.06),transparent),linear-gradient(to_bottom,rgba(0,0,0,0.02),transparent)]",
-					"dark:bg-[radial-gradient(1200px_400px_at_0%_-20%,rgba(99,102,241,0.12),transparent),linear-gradient(to_bottom,rgba(255,255,255,0.03),transparent)]"
+					"flex-1 min-h-0 rounded-xl border bg-muted/20"
 				)}
-				style={{ boxShadow: `inset 0 1px 0 0 ${accent}1a` }}
 			>
-				<div className="h-full w-full rounded-2xl p-2 sm:p-3">
+				<div className="h-full w-full rounded-xl p-2 sm:p-3">
 					<DemoCanvas />
 				</div>
 			</div>

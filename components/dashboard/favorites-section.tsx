@@ -11,7 +11,7 @@ export default function FavoritesSection({
 		return null;
 	}
 	return (
-		<section className="rounded-2xl border shadow-md bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
+		<section className="rounded-xl border shadow-sm bg-card transition-all duration-200 hover:shadow-md">
 			<div className="flex items-center justify-between px-4 py-3 border-b">
 				<div className="flex items-center gap-2">
 					<span className="text-sm font-semibold">Favorites</span>
@@ -25,11 +25,11 @@ export default function FavoritesSection({
 						<Link
 							key={b.id}
 							href={`/boards/${b.id}`}
-							className="group rounded-xl border px-3 py-2 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 transition-colors"
+							className="group rounded-lg border px-3 py-2 hover:bg-secondary hover:border-primary/30 transition-all duration-200"
 						>
 							<div className="flex items-start justify-between gap-2">
 								<div className="min-w-0">
-									<div className="font-medium truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300">
+									<div className="font-semibold truncate transition-colors duration-200 group-hover:text-primary">
 										{b.title}
 									</div>
 									{b.description ? (
@@ -52,10 +52,10 @@ export default function FavoritesSection({
 									) : null}
 								</div>
 								<div className="shrink-0 flex flex-col items-end gap-1">
-									<Badge variant="outline" className="rounded-full">
+									<Badge variant="outline" className="rounded-md">
 										Columns {b.columns.length}
 									</Badge>
-									<Badge className="rounded-full bg-indigo-600 text-white">
+									<Badge className="rounded-md bg-primary text-primary-foreground">
 										Cards {cardCount}
 									</Badge>
 								</div>

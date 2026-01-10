@@ -14,10 +14,10 @@ export default function KanbanCanvas() {
 	);
 
 	return (
-		<div className="relative h-full rounded-xl border bg-muted/30 dark:bg-muted/20 shadow-sm">
-			{/* left & right edge fades */}
-			<div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background/70 to-transparent rounded-l-xl" />
-			<div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background/70 to-transparent rounded-r-xl" />
+		<div className="relative h-full rounded-xl border bg-secondary/50 shadow-sm">
+			{/* left & right edge fades - subtle scroll indicators */}
+			<div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background/80 to-transparent rounded-l-xl" />
+			<div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background/80 to-transparent rounded-r-xl" />
 
 			<DragDropContext onDragEnd={onDragEnd}>
 				<Droppable droppableId="columns" direction="horizontal" type="COLUMN">

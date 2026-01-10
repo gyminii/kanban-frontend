@@ -10,7 +10,7 @@ export default function ProjectsSection({
 	recentBoards: BoardT[];
 }) {
 	return (
-		<section className="rounded-2xl border shadow-md overflow-hidden max-w-full bg-gradient-to-b from-indigo-50/40 to-background dark:from-indigo-950/20 dark:to-card">
+		<section className="rounded-xl border shadow-sm overflow-hidden max-w-full bg-card transition-all duration-200 hover:shadow-md">
 			<div className="flex items-center justify-between px-4 py-3 border-b">
 				<div className="flex items-center gap-2">
 					<span className="text-sm font-semibold">Projects</span>
@@ -33,13 +33,13 @@ export default function ProjectsSection({
 							<Link
 								key={b.id}
 								href={`/boards/${b.id}`}
-								className="group rounded-xl border px-3 py-2 transition-colors hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 overflow-hidden"
+								className="group rounded-lg border px-3 py-2 transition-all duration-200 hover:bg-secondary hover:border-primary/30 overflow-hidden"
 							>
 								{/* Grid prevents push/overflow */}
 								<div className="grid grid-cols-[1fr_auto] items-start gap-3">
 									{/* Left: title/meta */}
 									<div className="min-w-0">
-										<div className="font-medium truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300">
+										<div className="font-semibold truncate transition-colors duration-200 group-hover:text-primary">
 											{b.title}
 										</div>
 										<div className="mt-0.5 text-xs text-muted-foreground">
@@ -70,7 +70,7 @@ export default function ProjectsSection({
 										>
 											Columns {b.columns.length}
 										</Badge>
-										<Badge className="rounded-full whitespace-nowrap bg-indigo-600 text-white text-[11px] h-6 px-2 py-0">
+										<Badge className="rounded-md whitespace-nowrap bg-primary text-primary-foreground text-[11px] h-6 px-2 py-0">
 											Cards {cardCount}
 										</Badge>
 									</div>

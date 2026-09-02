@@ -20,11 +20,13 @@ export default clerkMiddleware(async (auth, request) => {
 	}
 
 	if (!isPublicRoute(request)) {
-		// A client-side navigation cannot complete Clerk's handshake. Answering it
-		// with a non-RSC response makes the router retry as a full page load.
+		// A client-side navigation (a fetch, not a document request) cannot complete
+		// Clerk's handshake. Next strips its own RSC headers before middleware runs,
+		// so detect it via Sec-Fetch-Dest. A non-RSC response makes the router retry
+		// as a full page load.
 		if (
 			!userId &&
-			request.headers.get("rsc") === "1" &&
+			request.headers.get("sec-fetch-dest") === "empty" &&
 			(request.cookies.get("__client_uat")?.value ?? "0") !== "0"
 		) {
 			return new NextResponse(null, { status: 401 });

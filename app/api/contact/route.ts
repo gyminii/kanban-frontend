@@ -22,8 +22,6 @@ function isContactPayload(v: unknown): v is ContactPayload {
 	);
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: NextRequest) {
 	const json = (await req.json()) as unknown;
 	if (!isContactPayload(json)) {
@@ -34,6 +32,8 @@ export async function POST(req: NextRequest) {
 	}
 
 	const { name, email, message } = json;
+
+	const resend = new Resend(process.env.RESEND_API_KEY);
 
 	const { error } = await resend.emails.send({
 		from: process.env.MAIL_FROM ?? "Kanban Contact <noreply@your-domain.com>",

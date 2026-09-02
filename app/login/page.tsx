@@ -1,4 +1,5 @@
 import { GoogleButton } from "@/components/google-signin";
+import { SignedInRedirect } from "@/components/signed-in-redirect";
 import { LayoutDashboard, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function LoginPage() {
 	return (
 		<section className="flex min-h-screen items-center justify-center bg-background p-6">
+			<SignedInRedirect to="/" />
 			<article className="w-full max-w-md rounded-xl border bg-card p-8 shadow-lg">
 				<header className="mb-6 text-center">
 					<div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">

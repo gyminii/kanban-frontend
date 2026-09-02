@@ -171,7 +171,6 @@ export function BoardsList() {
 							const backgroundTint = hexToRgba(color, 0.1); // soft bg
 							const hoverTint = hexToRgba(color, 0.16); // hover bg
 							const borderTint = hexToRgba(color, 0.28); // border
-							console.log(color, b);
 							return (
 								<li key={b.id}>
 									<div

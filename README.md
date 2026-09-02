@@ -26,11 +26,11 @@ Wanted people to try the app without signing up. Instead of mocking the GraphQL 
 
 Same components, same UI — but the data hooks check if you're in demo mode and switch between Apollo queries and Zustand selectors. Bit of extra wiring, but it means the demo is actually the real app, just with local storage as the "backend."
 
-### Supabase for Auth
+### Clerk for Auth
 
-Only needed Google OAuth, nothing fancy. Supabase handles the token flow, gives me a user ID to associate with boards. Could've used Clerk again but wanted to try something lighter.
+Only needed Google OAuth, nothing fancy. Clerk handles the token flow, gives me a user ID to associate with boards.
 
-The frontend passes the Supabase JWT to the GraphQL backend in the Authorization header. Backend validates it and extracts the user ID for ownership checks.
+The frontend passes the Clerk session token to the GraphQL backend in the Authorization header. Backend validates it and extracts the user ID for ownership checks.
 
 ## How It Fits Together
 
@@ -54,5 +54,5 @@ Cards can have tags (array of strings) and due dates. The dashboard aggregates t
 | Apollo Client | GraphQL client with normalized caching |
 | Zustand | Demo mode state (simpler than Redux) |
 | @hello-pangea/dnd | Drag-and-drop that actually works |
-| Supabase | OAuth without the overhead |
+| Clerk | OAuth without the overhead |
 | Tailwind + shadcn/ui | Fast UI, accessible components out of the box |

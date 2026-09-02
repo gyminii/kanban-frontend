@@ -1,9 +1,30 @@
-import { updateSession } from "@/utils/supabase/middleware";
-import { type NextRequest } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export async function proxy(request: NextRequest) {
-	return await updateSession(request);
-}
+const isPublicRoute = createRouteMatcher([
+	"/login",
+	"/sso-callback",
+	"/demo(.*)",
+	"/contact",
+	"/api/contact",
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+	const { userId } = await auth();
+	const { pathname } = request.nextUrl;
+
+	if (userId && pathname === "/login") {
+		const url = request.nextUrl.clone();
+		url.pathname = "/";
+		return NextResponse.redirect(url);
+	}
+
+	if (!isPublicRoute(request)) {
+		await auth.protect({
+			unauthenticatedUrl: new URL("/login", request.url).toString(),
+		});
+	}
+});
 
 export const config = {
 	matcher: [

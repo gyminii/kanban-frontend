@@ -17,29 +17,21 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { createClient } from "@/utils/supabase/client";
-import { use } from "react";
-import { useRouter } from "next/navigation";
-
-const supabase = createClient();
-const userPromise = supabase.auth.getUser();
+import { useClerk, useUser } from "@clerk/nextjs";
 
 export function UserProfile() {
-	const router = useRouter();
 	const { isMobile } = useSidebar();
-	const {
-		data: { user },
-	} = use(userPromise);
+	const { user, isLoaded } = useUser();
+	const { signOut } = useClerk();
 
-	if (!user) {
+	if (!isLoaded || !user) {
 		return null;
 	}
-	const avatarSrc =
-		user.user_metadata?.avatar_url || "https://www.gravatar.com/avatar/";
-	const userFallback = user.email ? user.email.charAt(0).toUpperCase() : "U";
+	const avatarSrc = user.imageUrl || "https://www.gravatar.com/avatar/";
+	const email = user.primaryEmailAddress?.emailAddress;
+	const userFallback = email ? email.charAt(0).toUpperCase() : "U";
 	const handleSignOut = async () => {
-		await supabase.auth.signOut();
-		router.replace("/login");
+		await signOut({ redirectUrl: "/login" });
 	};
 	return (
 		<SidebarMenu>
@@ -51,13 +43,13 @@ export function UserProfile() {
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<Avatar className="h-8 w-8 rounded-lg">
-								<AvatarImage src={avatarSrc} alt={user.email} />
+								<AvatarImage src={avatarSrc} alt={email} />
 								<AvatarFallback className="rounded-lg">
 									{userFallback}
 								</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">{user.email}</span>
+								<span className="truncate font-medium">{email}</span>
 								<span className="truncate text-xs">Profile</span>
 							</div>
 							<ChevronsUpDown className="ml-auto size-4" />
@@ -72,13 +64,13 @@ export function UserProfile() {
 						<DropdownMenuLabel className="p-0 font-normal">
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar className="h-8 w-8 rounded-lg">
-									<AvatarImage src={avatarSrc} alt={user.email} />
+									<AvatarImage src={avatarSrc} alt={email} />
 									<AvatarFallback className="rounded-lg">
 										{userFallback}
 									</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-medium">{user.email}</span>
+									<span className="truncate font-medium">{email}</span>
 									<span className="truncate text-xs">Profile</span>
 								</div>
 							</div>

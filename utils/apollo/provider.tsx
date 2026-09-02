@@ -6,10 +6,15 @@ import {
 	ApolloClient,
 	InMemoryCache,
 } from "@apollo/client-integration-nextjs";
+import { useAuth } from "@clerk/nextjs";
+import { useCallback, useRef } from "react";
 import { toast } from "sonner";
 
 // have a function to create a client for you
-function makeClient() {
+function makeClient(
+	getToken: () => Promise<string | null>,
+	ssrToken: string | null
+) {
 	const httpLink = new HttpLink({
 		uri:
 			process.env.NODE_ENV === "development"
@@ -17,7 +22,11 @@ function makeClient() {
 				: process.env.NEXT_PUBLIC_GRAPHQL_URL,
 		fetch: async (uri, options) => {
 			try {
-				const response = await fetch(uri, options);
+				const token =
+					typeof window === "undefined" ? ssrToken : await getToken();
+				const headers = new Headers(options?.headers);
+				if (token) headers.set("Authorization", `Bearer ${token}`);
+				const response = await fetch(uri, { ...options, headers });
 
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
@@ -58,9 +67,20 @@ function makeClient() {
 }
 
 // you need to create a component to wrap your app in
-export function ApolloProvider({ children }: React.PropsWithChildren) {
+export function ApolloProvider({
+	children,
+	ssrToken,
+}: React.PropsWithChildren<{ ssrToken: string | null }>) {
+	const { getToken } = useAuth();
+	const getTokenRef = useRef(getToken);
+	getTokenRef.current = getToken;
+	const makeAuthedClient = useCallback(
+		() => makeClient(() => getTokenRef.current(), ssrToken),
+		[ssrToken]
+	);
+
 	return (
-		<ApolloNextAppProvider makeClient={makeClient}>
+		<ApolloNextAppProvider makeClient={makeAuthedClient}>
 			{children}
 		</ApolloNextAppProvider>
 	);

@@ -16,13 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DASHBOARD_BOARDS } from "@/graphql/board";
-import { createClient } from "@/utils/supabase/client";
+import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@apollo/client/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import DeleteBoardDialog from "../dialogs/delete-board-dialog";
 import EditBoardDialog from "../dialogs/edit-board-dialog";
-
-type SupabaseUser = { id: string } | null;
 
 /** Convert hex like #6366F1 to rgba(...) with given alpha (0..1). */
 function hexToRgba(hex: string, alpha = 0.12) {
@@ -43,25 +41,7 @@ function hexToRgba(hex: string, alpha = 0.12) {
 }
 
 export function BoardsList() {
-	const supabase = createClient();
-	const [user, setUser] = useState<SupabaseUser>(null);
-	const [authLoading, setAuthLoading] = useState(true);
-
-	useEffect(() => {
-		let mounted = true;
-		(async () => {
-			try {
-				const { data, error } = await supabase.auth.getUser();
-				if (mounted) setUser(error ? null : data.user ?? null);
-			} finally {
-				if (mounted) setAuthLoading(false);
-			}
-		})();
-		return () => {
-			mounted = false;
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	const { user, isLoaded } = useUser();
 
 	const [deleteOpen, setDeleteOpen] = useState(false);
 	const [deleteInfo, setDeleteInfo] = useState<{
@@ -92,7 +72,7 @@ export function BoardsList() {
 		[boards]
 	);
 
-	const isLoading = authLoading || (!user && !error) || loading;
+	const isLoading = !isLoaded || (!user && !error) || loading;
 
 	function CreateProjectButton() {
 		const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {

@@ -1,13 +1,10 @@
 import CreateBoardDialog from "@/components/dialogs/create-board-dialog";
-import { createClient } from "@/utils/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function CreateProjectPage() {
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
+	const { userId } = await auth();
 
-	if (!user) return null;
+	if (!userId) return null;
 
 	return <CreateBoardDialog />;
 }

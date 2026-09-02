@@ -8,23 +8,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DASHBOARD_BOARDS } from "@/graphql/board";
 import { getClient } from "@/utils/apollo/server";
-import { createClient } from "@/utils/supabase/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Calendar, TrendingUp, Clock, Zap } from "lucide-react";
 
 export default async function DashboardPage() {
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-	if (!user) redirect("/login");
+	const { userId } = await auth();
+	if (!userId) redirect("/login");
 
 	const client = getClient();
 
 	const { data: boardsData } = await client.query<{ boards: BoardT[] }>({
 		query: DASHBOARD_BOARDS,
-		variables: { userId: user.id },
+		variables: { userId },
 	});
 
 	const boards = (boardsData?.boards ?? []).filter((b) => !b.isArchived);
@@ -95,7 +92,9 @@ export default async function DashboardPage() {
 			(a, b) => new Date(a.dueRaw).getTime() - new Date(b.dueRaw).getTime()
 		);
 
-	const displayName = user.user_metadata?.name || user.email || "Welcome back";
+	const user = await currentUser();
+	const displayName =
+		user?.firstName ?? user?.primaryEmailAddress?.emailAddress ?? "Welcome back";
 
 	// Calculate some quick stats
 	const totalTasks = boards.reduce(

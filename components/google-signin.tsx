@@ -1,24 +1,19 @@
 "use client";
-import { createClient } from "@/utils/supabase/client";
+import { useSignIn } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 export function GoogleButton() {
-	const supabase = createClient();
+	const { signIn } = useSignIn();
 	const [loading, setLoading] = useState(false);
 
-	const signIn = async () => {
+	const handleSignIn = async () => {
 		try {
 			setLoading(true);
-			await supabase.auth.signInWithOAuth({
-				provider: "google",
-				options: {
-					redirectTo: `${
-						process.env.NODE_ENV === "development"
-							? "http://localhost:3000/"
-							: process.env.NEXT_PUBLIC_SITE_URL
-					}auth/callback`,
-				},
+			await signIn.sso({
+				strategy: "oauth_google",
+				redirectUrl: "/",
+				redirectCallbackUrl: "/sso-callback",
 			});
 		} finally {
 			setLoading(false);
@@ -27,7 +22,7 @@ export function GoogleButton() {
 
 	return (
 		<button
-			onClick={signIn}
+			onClick={handleSignIn}
 			disabled={loading}
 			className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-4 py-2 text-sm font-medium text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 dark:border-indigo-800 dark:bg-indigo-950 dark:text-indigo-100 dark:hover:bg-indigo-900"
 		>

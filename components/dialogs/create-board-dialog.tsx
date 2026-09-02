@@ -22,16 +22,14 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { BoardT, ColumnT } from "../kanban/types";
-import { createClient } from "@/utils/supabase/client";
-import { FormEvent, use, useRef, useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { FormEvent, useRef, useState } from "react";
 import {
 	BOARD_FIELDS,
 	COLUMN_FIELDS,
 	DASHBOARD_BOARD_FIELDS,
 } from "@/graphql/fragments";
 
-const supabase = createClient();
-const userPromise = supabase.auth.getUser();
 export default function CreateBoardDialog() {
 	const router = useRouter();
 	const client = useApolloClient();
@@ -47,10 +45,8 @@ export default function CreateBoardDialog() {
 		tags: "",
 		createDefaults: true,
 	});
-	const {
-		data: { user },
-	} = use(userPromise);
-	if (!user) {
+	const { user, isLoaded } = useUser();
+	if (!isLoaded || !user) {
 		return null;
 	}
 	const userId = user.id;

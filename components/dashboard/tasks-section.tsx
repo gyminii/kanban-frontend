@@ -24,10 +24,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DASHBOARD_BOARDS } from "@/graphql/board";
 import { GET_CARDS } from "@/graphql/card";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/client";
+import { useUser } from "@clerk/nextjs";
 import { useApolloClient } from "@apollo/client/react";
 import { CalendarDays, LayoutDashboard, List, Tag } from "lucide-react";
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 function formatDate(d?: string | null) {
 	return d ? new Date(d).toLocaleDateString() : "—";
@@ -42,14 +42,9 @@ function daysUntil(date: Date) {
 
 type ItemsT = (CardT & { boardId: string; boardTitle: string })[];
 
-const supabase = createClient();
-const userPromise = supabase.auth.getUser();
-
 export default function TasksSection() {
 	const client = useApolloClient();
-	const {
-		data: { user },
-	} = use(userPromise);
+	const { user } = useUser();
 	const userId = user?.id;
 
 	const [boards, setBoards] = useState<BoardT[]>([]);
@@ -59,6 +54,7 @@ export default function TasksSection() {
 	const [loading, setLoading] = useState<boolean>(true);
 
 	useEffect(() => {
+		if (!userId) return;
 		let mounted = true;
 		(async () => {
 			try {
@@ -84,6 +80,7 @@ export default function TasksSection() {
 
 	const refetchTasks = useCallback(
 		async (boardId: string | null) => {
+			if (!userId) return;
 			const { data } = await client.query<{ getCards: CardT[] }>({
 				query: GET_CARDS,
 				variables: { userId, boardId },

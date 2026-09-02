@@ -1,4 +1,5 @@
 import { HttpLink } from "@apollo/client";
+import { auth } from "@clerk/nextjs/server";
 import {
 	registerApolloClient,
 	ApolloClient,
@@ -13,7 +14,10 @@ export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
 				: process.env.NEXT_PUBLIC_GRAPHQL_URL,
 		fetch: async (uri, options) => {
 			try {
-				const response = await fetch(uri, options);
+				const token = await (await auth()).getToken();
+				const headers = new Headers(options?.headers);
+				if (token) headers.set("Authorization", `Bearer ${token}`);
+				const response = await fetch(uri, { ...options, headers });
 
 				// Check if response is ok
 				if (!response.ok) {

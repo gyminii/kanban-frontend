@@ -25,23 +25,19 @@ import {
 	Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { use, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { createClient } from "@/utils/supabase/client";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const supabase = createClient();
-const userPromise = supabase.auth.getUser();
 export default function ContactPage() {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const {
-		data: { user },
-	} = use(userPromise);
-	const email = user?.email;
-	const name = user?.user_metadata?.full_name || user?.user_metadata?.name;
+	const { user } = useUser();
+	const email = user?.primaryEmailAddress?.emailAddress;
+	const name = user?.fullName ?? undefined;
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		if (loading) return;
@@ -163,7 +159,7 @@ export default function ContactPage() {
 										<div className="min-w-0">
 											<p className="text-sm font-medium">Cloud-ready</p>
 											<p className="text-xs text-muted-foreground">
-												Supabase auth, R2/CDN assets, and API-first GraphQL.
+												Clerk auth, R2/CDN assets, and API-first GraphQL.
 											</p>
 										</div>
 									</div>

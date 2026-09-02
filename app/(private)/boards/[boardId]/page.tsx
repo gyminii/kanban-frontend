@@ -2,7 +2,7 @@ import BoardView from "@/components/kanban/board-view";
 import { BoardT } from "@/components/kanban/types";
 import { BOARD_QUERY } from "@/graphql/board";
 import { getClient } from "@/utils/apollo/server";
-import { createClient } from "@/utils/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -48,7 +48,6 @@ export default async function BoardPage({
 }) {
 	const { boardId } = await params;
 	const client = getClient();
-	const supabase = await createClient();
 	try {
 		const { data } = await client.query<{ board: BoardT }>({
 			query: BOARD_QUERY,
@@ -56,10 +55,8 @@ export default async function BoardPage({
 			fetchPolicy: "no-cache",
 		});
 
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user) redirect("/login");
+		const { userId } = await auth();
+		if (!userId) redirect("/login");
 		if (!data?.board) redirect("/dashboard");
 
 		return <BoardView />;

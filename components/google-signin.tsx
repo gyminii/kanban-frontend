@@ -12,7 +12,7 @@ export function GoogleButton() {
 			setLoading(true);
 			await signIn.sso({
 				strategy: "oauth_google",
-				redirectUrl: "/",
+				redirectUrl: "/dashboard",
 				redirectCallbackUrl: "/sso-callback",
 			});
 		} finally {

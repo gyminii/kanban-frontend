@@ -142,6 +142,8 @@ export default function CreateCardDialog({
 						},
 					});
 
+					cache.evict({ id: "ROOT_QUERY", fieldName: "getCards" });
+
 					console.log(
 						"✅ Cache modification complete. Check your UI for the new card."
 					);

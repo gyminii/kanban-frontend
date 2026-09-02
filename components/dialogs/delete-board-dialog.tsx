@@ -1,5 +1,6 @@
 "use client";
 
+import { Reference } from "@apollo/client";
 import { useApolloClient } from "@apollo/client/react";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -43,35 +44,22 @@ export default function DeleteBoardDialog({
 			await client.mutate<{ deleteBoard: boolean }>({
 				mutation: DELETE_BOARD,
 				variables: { boardId },
-				// optimisticResponse: { deleteBoard: true },
-				// update(cache) {
-				// 	const deletedBoard = cache.readFragment<BoardT>({
-				// 		id: cache.identify({ __typename: "Board", id: boardId }),
-				// 		fragment: BOARD_FIELDS,
-				// 		fragmentName: "BoardFields",
-				// 	});
-				// 	if (!deletedBoard) {
-				// 		console.log(
-				// 			"Deleted board not found in cache. Cache update aborted."
-				// 		);
-				// 		return;
-				// 	}
-				// 	cache.modify({
-				// 		fields: {
-				// 			boards(existingBoards = [], { readField }) {
-				// 				return existingBoards.filter(
-				// 					(boardRef: Reference) => readField("id", boardRef) !== boardId
-				// 				);
-				// 			},
-				// 		},
-				// 	});
+				update(cache) {
+					cache.modify({
+						fields: {
+							boards(existingBoards = [], { readField }) {
+								return existingBoards.filter(
+									(boardRef: Reference) => readField("id", boardRef) !== boardId
+								);
+							},
+						},
+					});
 
-				// 	cache.evict({
-				// 		id: cache.identify({ __typename: "Board", id: boardId }),
-				// 	});
-				// 	cache.gc();
-				// 	console.log("Board evicted from cache and garbage collected.");
-				// },
+					cache.evict({
+						id: cache.identify({ __typename: "Board", id: boardId }),
+					});
+					cache.gc();
+				},
 			});
 			toast.success("Board deleted");
 			onOpenChange(false);

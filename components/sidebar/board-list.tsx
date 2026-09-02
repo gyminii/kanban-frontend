@@ -57,7 +57,7 @@ export function BoardsList() {
 		DASHBOARD_BOARDS,
 		{
 			variables: { userId: user?.id },
-			fetchPolicy: "cache-and-network",
+			fetchPolicy: "cache-first",
 			skip: !user, // wait until we know user
 		}
 	);

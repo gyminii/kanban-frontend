@@ -62,7 +62,7 @@ export default function TasksSection() {
 				const { data } = await client.query<{ boards: BoardT[] }>({
 					query: DASHBOARD_BOARDS,
 					variables: { userId },
-					fetchPolicy: "network-only",
+					fetchPolicy: "cache-first",
 				});
 				if (!mounted) return;
 				const nonArchived = (data?.boards ?? []).filter((b) => !b.isArchived);
@@ -84,7 +84,7 @@ export default function TasksSection() {
 			const { data } = await client.query<{ getCards: CardT[] }>({
 				query: GET_CARDS,
 				variables: { userId, boardId },
-				fetchPolicy: "network-only",
+				fetchPolicy: "cache-first",
 			});
 
 			const lookup = new Map(boards.map((b) => [b.id, b.title]));

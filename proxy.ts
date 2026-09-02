@@ -15,11 +15,20 @@ export default clerkMiddleware(async (auth, request) => {
 
 	if (userId && pathname === "/login") {
 		const url = request.nextUrl.clone();
-		url.pathname = "/";
+		url.pathname = "/dashboard";
 		return NextResponse.redirect(url);
 	}
 
 	if (!isPublicRoute(request)) {
+		// A client-side navigation cannot complete Clerk's handshake. Answering it
+		// with a non-RSC response makes the router retry as a full page load.
+		if (
+			!userId &&
+			request.headers.get("rsc") === "1" &&
+			(request.cookies.get("__client_uat")?.value ?? "0") !== "0"
+		) {
+			return new NextResponse(null, { status: 401 });
+		}
 		await auth.protect({
 			unauthenticatedUrl: new URL("/login", request.url).toString(),
 		});

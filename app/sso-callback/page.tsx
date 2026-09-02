@@ -1,9 +1,21 @@
 "use client";
 
-import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 export default function SSOCallbackPage() {
+	const clerk = useClerk();
+
+	useEffect(() => {
+		clerk.handleRedirectCallback(
+			{ signInFallbackRedirectUrl: "/", signUpFallbackRedirectUrl: "/" },
+			async (to) => {
+				window.location.assign(to);
+			}
+		);
+	}, [clerk]);
+
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-indigo-100 dark:from-indigo-950 dark:via-background dark:to-indigo-900">
 			<div className="flex flex-col items-center gap-4">
@@ -12,10 +24,6 @@ export default function SSOCallbackPage() {
 					Signing you in...
 				</p>
 			</div>
-			<AuthenticateWithRedirectCallback
-				signInFallbackRedirectUrl="/"
-				signUpFallbackRedirectUrl="/"
-			/>
 		</div>
 	);
 }

@@ -14,12 +14,6 @@ export default function Error({
 		console.error("Application error:", error);
 	}, [error]);
 
-	const isNetworkError =
-		error.message.includes("fetch failed") ||
-		error.message.includes("ECONNREFUSED") ||
-		error.message.includes("Failed to fetch") ||
-		error.message.includes("NetworkError");
-
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background p-4">
 			<div className="w-full max-w-md space-y-6 text-center">
@@ -30,12 +24,10 @@ export default function Error({
 
 				<div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
 					<p className="font-semibold text-destructive">
-						{isNetworkError ? "Backend Server Not Running" : "Error"}
+						Error
 					</p>
 					<p className="mt-2 text-sm text-muted-foreground">
-						{isNetworkError
-							? "The backend server on port 8080 is not running. Please start the server and try again."
-							: error.message || "An unexpected error occurred"}
+						An unexpected error occurred. Please try again.
 					</p>
 				</div>
 

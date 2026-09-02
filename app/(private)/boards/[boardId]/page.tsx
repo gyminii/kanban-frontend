@@ -22,7 +22,6 @@ export async function generateMetadata({
 		const { data } = await client.query<{ board: BoardT }>({
 			query: BOARD_QUERY,
 			variables: { boardId },
-			fetchPolicy: "no-cache",
 		});
 
 		if (data?.board) {
@@ -47,21 +46,23 @@ export default async function BoardPage({
 	params: Promise<{ boardId: string }>;
 }) {
 	const { boardId } = await params;
+	const { userId } = await auth();
+	if (!userId) redirect("/login");
+
 	const client = getClient();
+	let board: BoardT | undefined;
 	try {
 		const { data } = await client.query<{ board: BoardT }>({
 			query: BOARD_QUERY,
 			variables: { boardId },
-			fetchPolicy: "no-cache",
 		});
-
-		const { userId } = await auth();
-		if (!userId) redirect("/login");
-		if (!data?.board) redirect("/dashboard");
-
-		return <BoardView />;
+		board = data?.board;
 	} catch (error) {
 		console.error("An error occurred:", error);
 		redirect("/dashboard");
 	}
+
+	if (!board) redirect("/dashboard");
+
+	return <BoardView />;
 }

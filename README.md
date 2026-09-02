@@ -56,3 +56,16 @@ Cards can have tags (array of strings) and due dates. The dashboard aggregates t
 | @hello-pangea/dnd | Drag-and-drop that actually works |
 | Clerk | OAuth without the overhead |
 | Tailwind + shadcn/ui | Fast UI, accessible components out of the box |
+
+## Deployment
+
+The app runs on a Cloudflare Worker at `https://kanban.minii.dev`.
+`@opennextjs/cloudflare` turns the Next.js build into `.open-next/worker.js` plus a static asset directory, and `wrangler.jsonc` binds those together and attaches the Custom Domain.
+
+Workers Builds deploys on every push to `main`.
+The build command is `bun install --frozen-lockfile && bun run cf:build` and the deploy command is `bunx opennextjs-cloudflare deploy`.
+The OpenNext build step does not run on Windows, so building locally means running `bun run cf:build` inside a Linux container; `bunx wrangler dev` then previews the built output natively.
+
+`NEXT_PUBLIC_*` values are inlined at build time and are stored as Workers Builds build variables, so changing one needs a rebuild rather than a redeploy.
+`CLERK_SECRET_KEY`, `RESEND_API_KEY`, `MAIL_FROM`, and `MAIL_TO` are Worker secrets, set with `bunx wrangler secret put <NAME>`.
+`NEXT_PUBLIC_GRAPHQL_URL` points at `https://api.kanban.minii.dev/graphql/` rather than the backend's `workers.dev` URL, because a Worker cannot fetch a `*.workers.dev` hostname.

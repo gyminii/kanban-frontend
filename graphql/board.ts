@@ -12,6 +12,7 @@ export const DASHBOARD_BOARDS = gql`
 			updatedAt
 			createdAt
 			isFavorite
+			isArchived
 			tags
 			color
 			columns {

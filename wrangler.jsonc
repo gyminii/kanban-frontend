@@ -9,5 +9,6 @@
 		{ "binding": "WORKER_SELF_REFERENCE", "service": "kanban-frontend" }
 	],
 	"routes": [{ "pattern": "kanban.minii.dev", "custom_domain": true }],
+	"vars": { "TURNSTILE_HOSTNAMES": "kanban.minii.dev" },
 	"observability": { "enabled": true }
 }

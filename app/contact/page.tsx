@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Turnstile } from "@/components/turnstile";
 import {
 	ArrowLeft,
 	CheckCircle2,
@@ -34,6 +35,7 @@ import { toast } from "sonner";
 
 export default function ContactPage() {
 	const [loading, setLoading] = useState(false);
+	const [attempt, setAttempt] = useState(0);
 	const router = useRouter();
 	const { user } = useUser();
 	const email = user?.primaryEmailAddress?.emailAddress;
@@ -51,6 +53,7 @@ export default function ContactPage() {
 			name: getStr("name"),
 			email: getStr("email"),
 			message: getStr("message"),
+			turnstileToken: getStr("cf-turnstile-response"),
 		};
 
 		setLoading(true);
@@ -96,6 +99,7 @@ export default function ContactPage() {
 			);
 		} finally {
 			setLoading(false);
+			setAttempt((n) => n + 1);
 		}
 	}
 
@@ -299,6 +303,7 @@ export default function ContactPage() {
 										placeholder="Your Message"
 										required
 									/>
+									<Turnstile action="contact" resetKey={attempt} />
 									<Button
 										type="submit"
 										disabled={loading}

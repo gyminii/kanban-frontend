@@ -36,6 +36,7 @@ import { toast } from "sonner";
 export default function ContactPage() {
 	const [loading, setLoading] = useState(false);
 	const [attempt, setAttempt] = useState(0);
+	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 	const router = useRouter();
 	const { user } = useUser();
 	const email = user?.primaryEmailAddress?.emailAddress;
@@ -53,7 +54,7 @@ export default function ContactPage() {
 			name: getStr("name"),
 			email: getStr("email"),
 			message: getStr("message"),
-			turnstileToken: getStr("cf-turnstile-response"),
+			turnstileToken: turnstileToken ?? "",
 		};
 
 		setLoading(true);
@@ -303,10 +304,14 @@ export default function ContactPage() {
 										placeholder="Your Message"
 										required
 									/>
-									<Turnstile action="contact" resetKey={attempt} />
+									<Turnstile
+										action="contact"
+										resetKey={attempt}
+										onToken={setTurnstileToken}
+									/>
 									<Button
 										type="submit"
-										disabled={loading}
+										disabled={loading || !turnstileToken}
 										className="w-full bg-indigo-600 hover:bg-indigo-600/90"
 									>
 										{loading ? "Sending..." : "Send Message"}

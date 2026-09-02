@@ -10,7 +10,7 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf:types": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf:types": "wrangler types"
   },
   "dependencies": {
     "@apollo/client": "^4.0.11",

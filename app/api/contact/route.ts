@@ -1,4 +1,3 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -24,19 +23,6 @@ function isContactPayload(v: unknown): v is ContactPayload {
 }
 
 export async function POST(req: NextRequest) {
-	const limiter = getCloudflareContext().env.CONTACT_RATE_LIMIT;
-	if (limiter) {
-		const { success } = await limiter.limit({
-			key: req.headers.get("cf-connecting-ip") ?? "unknown",
-		});
-		if (!success) {
-			return NextResponse.json(
-				{ ok: false, error: "Too many messages. Try again in a minute." },
-				{ status: 429 }
-			);
-		}
-	}
-
 	const json = (await req.json()) as unknown;
 	if (!isContactPayload(json)) {
 		return NextResponse.json(

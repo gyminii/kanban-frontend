@@ -9,12 +9,5 @@
 		{ "binding": "WORKER_SELF_REFERENCE", "service": "kanban-frontend" }
 	],
 	"routes": [{ "pattern": "kanban.minii.dev", "custom_domain": true }],
-	"ratelimits": [
-		{
-			"name": "CONTACT_RATE_LIMIT",
-			"namespace_id": "1001",
-			"simple": { "limit": 3, "period": 60 }
-		}
-	],
 	"observability": { "enabled": true }
 }
